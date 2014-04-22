@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=Email Notifyer
+Comment=Email Notifyer
+Type=Service
+ServiceTypes=Plasma/Applet
+ 
+X-KDE-Library=plasma_applet_email_notifyer
+X-KDE-PluginInfo-Author=Yossi Mualem
+X-KDE-PluginInfo-Email=ymgetm@gmail.com
+X-KDE-PluginInfo-Name=email_notifyer
+X-KDE-PluginInfo-Version=0.1
+X-KDE-PluginInfo-Website=http://plasma.kde.org/
+X-KDE-PluginInfo-Category=Miscellaneous
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=GPL
+X-KDE-PluginInfo-EnabledByDefault=true
