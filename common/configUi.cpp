@@ -238,13 +238,13 @@ void accountTab::updateUnameSuffix (int index)
 void accountTab::save ()
 {
    AccountSettings settings;
-   settings.login = m_uname->text().toAscii().constData();
-   settings.pass  = m_pass->text().toAscii().constData();
-   settings.type  = m_typeCBox->itemData(m_typeCBox->currentIndex()).toString().toAscii().constData();
+   settings.login = m_uname->text().toUtf8().constData();
+   settings.pass  = m_pass->text().toUtf8().constData();
+   settings.type  = m_typeCBox->itemData(m_typeCBox->currentIndex()).toString().toUtf8().constData();
    /*TODO: This shouod be transfered to config.cpp */
    if (settings.type.compare(EMAIL_TYPE_POP3) == 0 || settings.type.compare(EMAIL_TYPE_IMAP) == 0)
    {
-      settings.host  = m_host->text().toAscii().constData();
+      settings.host  = m_host->text().toUtf8().constData();
       settings.port  = (unsigned int)m_port->value();
       settings.ssl   = (m_ssl->checkState() > 0 );
    } else {

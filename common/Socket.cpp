@@ -23,6 +23,8 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <unistd.h>
+
 
 #define SOC_TIMEOUT   7
 #define BUFF_SIZE     512
@@ -168,7 +170,7 @@ EmailError Socket::close()
    {
       status = Email_no_connection;
    } else {
-      ::close (m_socfd);
+      ::close(m_socfd);
       m_socfd = -1;
    }
    return status; 

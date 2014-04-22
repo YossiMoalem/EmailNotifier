@@ -264,7 +264,7 @@ static void _read_elem_val (QDomElement &root, const char* elem_name, std::strin
 {
    QDomElement elem = root.firstChildElement(elem_name);
    QString elem_val = elem.firstChild().toText().data();
-   r_value = elem_val.toAscii().constData();
+   r_value = elem_val.toUtf8().constData();
 }
 
 static EmailError _load_xml (QDomDocument &doc)

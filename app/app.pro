@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 
+TARGET = emailNotifier
 DEPENDPATH += . common
 INCLUDEPATH += .
 
@@ -31,5 +31,5 @@ SOURCES += main.cpp \
            ../common/Pop3.cpp \
            ../common/emailChecker.cpp \
            ../common/Socket.cpp
-QT += xml
+QT += widgets xml
 LIBS += -lssl -lcrypto -lrt

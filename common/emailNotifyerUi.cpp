@@ -38,7 +38,7 @@ emailNotifyerUi::emailNotifyerUi() : QObject (), m_widget(new QWidget), m_ntf(ne
    m_accountString = new QString(checkingStatus);
    m_accountStatus = new QTextEdit(m_widget);
    m_accountStatus->setReadOnly(true);
-   m_accountStatus->setCurrentFont(QFont("Currier", 15, TRUE));
+   m_accountStatus->setCurrentFont(QFont("Currier", 15, true));
 
    QVBoxLayout*  accountLayout = new QVBoxLayout(m_widget);
    accountLayout->addWidget(m_accountStatus);
@@ -91,7 +91,7 @@ void emailNotifyerUi::updateAccount()
 
 const char* emailNotifyerUi::statusStr () const
 {
-   return m_accountString->toAscii();
+   return m_accountString->toUtf8();
 }
 
 QWidget* emailNotifyerUi::widget()
