@@ -11,11 +11,11 @@ INCLUDEPATH += .
 HEADERS += ../common/config.h \
            ../common/configUi.h \
            ../common/emailAccount.h \
-           ../common/emailNotifyer.h \
-           ../common/emailNotifyerUi.h \
+           ../common/emailNotifier.h \
+           ../common/emailNotifierUi.h \
            ../common/error.h \
            ../common/Imap.h \
-           ../common/notifyerApp.h \
+           ../common/notifierApp.h \
            ../common/Pop3.h \
            ../common/emailChecker.h \
            ../common/Socket.h
@@ -23,11 +23,11 @@ SOURCES += main.cpp \
            ../common/config.cpp \
            ../common/configUi.cpp \
            ../common/emailAccount.cpp \
-           ../common/emailNotifyer.cpp \
-           ../common/emailNotifyerUi.cpp \
+           ../common/emailNotifier.cpp \
+           ../common/emailNotifierUi.cpp \
            ../common/error.cpp \
            ../common/Imap.cpp \
-           ../common/notifyerApp.cpp \
+           ../common/notifierApp.cpp \
            ../common/Pop3.cpp \
            ../common/emailChecker.cpp \
            ../common/Socket.cpp

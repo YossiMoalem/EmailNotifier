@@ -57,7 +57,7 @@ static EmailError _load_xml (QDomDocument &dox);
 
 const char* get_settings_config_name ()
 {
-   static char* config_name = ".emailNotifyer.xml";
+   static char* config_name = ".emailNotifier.xml";
    static char* config_path = NULL;
    if (config_path == NULL)
    {

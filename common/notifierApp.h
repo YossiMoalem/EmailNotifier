@@ -19,43 +19,24 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef EmailNotifyer_HEADER
-#define EmailNotifyer_HEADER
+#ifndef NOTIFYER_APP
+#define NOTIFYER_APP 
 
-#include <KIcon>
+#include <QWidget>
+#include "../common/emailNotifierUi.h"
 
-#include <Plasma/PopupApplet>
-#include <Plasma/Svg>
+class QPushButton;
 
-class emailNotifyerUi;
-class QSizeF;
-class QString;
-class QWidget;
-
-class PlasmaEmailNotifyer : public Plasma::PopupApplet
+class notifierApp : public QWidget
 {
    Q_OBJECT
-   public:
-      PlasmaEmailNotifyer(QObject *parent, const QVariantList &args);
-      ~PlasmaEmailNotifyer();
-      QWidget* widget();
-
-      void paintInterface(QPainter *p,
-            const QStyleOptionGraphicsItem *option,
-            const QRect& contentsRect);
-      void init();
-
-   public slots:
-   void accountUpdated(int newMsgs);
 
    private:
-      Plasma::Svg       m_svg;
-      emailNotifyerUi*  m_ntf;
-      QString*          m_accountString;
+      emailNotifierUi*     m_emailNotifier;
+      QPushButton*         m_config;
 
-
-   private slots:
-   void showConfigurationInterface();
+   public: 
+   notifierApp ();
 
 };
 

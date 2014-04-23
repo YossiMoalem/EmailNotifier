@@ -19,38 +19,44 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef EMAIL_NOTIFYER
-#define EMAIL_NOTIFYER
+#ifndef EmailNotifier_HEADER
+#define EmailNotifier_HEADER
 
-#include "config.h"
-#include "emailAccount.h"
-#include <QObject>
+#include <KIcon>
 
-class QTimer;
-class emailChecker;
+#include <Plasma/PopupApplet>
+#include <Plasma/Svg>
 
-class emailNotifyer : public QObject
+class emailNotifierUi;
+class QSizeF;
+class QString;
+class QWidget;
+
+class PlasmaEmailNotifier : public Plasma::PopupApplet
 {
    Q_OBJECT
-
    public:
-   emailNotifyer(QObject* parent = NULL);
-   void createAccount (AccountSettings& settings);
+      PlasmaEmailNotifier(QObject *parent, const QVariantList &args);
+      ~PlasmaEmailNotifier();
+      QWidget* widget();
+
+      void paintInterface(QPainter *p,
+            const QStyleOptionGraphicsItem *option,
+            const QRect& contentsRect);
+      void init();
+
+   public slots:
+   void accountUpdated(int newMsgs);
 
    private:
-   emailAccount*  m_account;
-   QTimer*        m_checkTimer;
-   bool           m_playNotification;
-   int            m_updateInterval;
-   emailChecker*  m_emailChecker;
+      Plasma::Svg       m_svg;
+      emailNotifierUi*  m_ntf;
+      QString*          m_accountString;
 
-   public slots: 
-   void checkAccount();
-   void accountUpdated(int newMsgs);
-   void readConfigAndUpdate();
 
-   signals:
-   void accountChanged(int newMsgs);
+   private slots:
+   void showConfigurationInterface();
+
 };
 
 #endif

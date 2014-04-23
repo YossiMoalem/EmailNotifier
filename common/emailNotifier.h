@@ -19,25 +19,38 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef NOTIFYER_APP
-#define NOTIFYER_APP 
+#ifndef EMAIL_NOTIFYER
+#define EMAIL_NOTIFYER
 
-#include <QWidget>
-#include "../common/emailNotifyerUi.h"
+#include "config.h"
+#include "emailAccount.h"
+#include <QObject>
 
-class QPushButton;
+class QTimer;
+class emailChecker;
 
-class notifyerApp : public QWidget
+class emailNotifier : public QObject
 {
    Q_OBJECT
 
+   public:
+   emailNotifier(QObject* parent = NULL);
+   void createAccount (AccountSettings& settings);
+
    private:
-      emailNotifyerUi*     m_emailNotifyer;
-      QPushButton*         m_config;
+   emailAccount*  m_account;
+   QTimer*        m_checkTimer;
+   bool           m_playNotification;
+   int            m_updateInterval;
+   emailChecker*  m_emailChecker;
 
-   public: 
-   notifyerApp ();
+   public slots: 
+   void checkAccount();
+   void accountUpdated(int newMsgs);
+   void readConfigAndUpdate();
 
+   signals:
+   void accountChanged(int newMsgs);
 };
 
 #endif

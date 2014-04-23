@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "plasma-email-notifyer.h"
+#include "plasma-email-notifier.h"
  
 #include <plasma/svg.h>
 #include <plasma/theme.h>
@@ -28,11 +28,11 @@
 #include <QPainter>
 #include <QWidget>
  
-#include "common/emailNotifyerUi.h"
+#include "common/emailNotifierUi.h"
 #include "common/configUi.h"
 #include <sstream>
 
-PlasmaEmailNotifyer::PlasmaEmailNotifyer(QObject *parent, const QVariantList &args)
+PlasmaEmailNotifier::PlasmaEmailNotifier(QObject *parent, const QVariantList &args)
     : Plasma::PopupApplet(parent, args),
     m_svg( this)
 {
@@ -43,22 +43,22 @@ PlasmaEmailNotifyer::PlasmaEmailNotifyer(QObject *parent, const QVariantList &ar
 }
  
  
-PlasmaEmailNotifyer::~PlasmaEmailNotifyer()
+PlasmaEmailNotifier::~PlasmaEmailNotifier()
 {
     if (m_ntf != NULL)
        delete m_ntf;
 }
  
-void PlasmaEmailNotifyer::init()
+void PlasmaEmailNotifier::init()
 {
 
-  m_ntf = new emailNotifyerUi() ;
+  m_ntf = new emailNotifierUi() ;
   connect (m_ntf, SIGNAL(sigAccountChanged(int)),
             this, SLOT(accountUpdated(int)));
 } 
  
  
-void PlasmaEmailNotifyer::paintInterface(QPainter *p,
+void PlasmaEmailNotifier::paintInterface(QPainter *p,
         const QStyleOptionGraphicsItem *option, const QRect &contentsRect)
 {
    qDebug ("Repainting the plasmoind");
@@ -75,7 +75,7 @@ void PlasmaEmailNotifyer::paintInterface(QPainter *p,
    p->restore();
 }
  
-void PlasmaEmailNotifyer::accountUpdated(int newMsgs)
+void PlasmaEmailNotifier::accountUpdated(int newMsgs)
 {
    qDebug ("Ui:Updating acount status");
    QString msgStr ;
@@ -90,16 +90,16 @@ void PlasmaEmailNotifyer::accountUpdated(int newMsgs)
    update();
 }
 
-QWidget* PlasmaEmailNotifyer::widget ()
+QWidget* PlasmaEmailNotifier::widget ()
 {
    return m_ntf->widget();
 }
-void PlasmaEmailNotifyer::showConfigurationInterface()
+void PlasmaEmailNotifier::showConfigurationInterface()
 {
    m_ntf->showConfig();
 }
 
 // This is the command that links your applet to the .desktop file
-K_EXPORT_PLASMA_APPLET(email_notifyer, PlasmaEmailNotifyer)
+K_EXPORT_PLASMA_APPLET(email_notifier, PlasmaEmailNotifier)
  
-#include "plasma-email-notifyer.moc"
+#include "plasma-email-notifier.moc"

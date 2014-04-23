@@ -23,7 +23,7 @@
 
 #include <QPaintEvent>
 class QLabel;
-class emailNotifyer;
+class emailNotifier;
 class QPainter;
 class QRect;
 class QPushButton;
@@ -31,12 +31,12 @@ class QTextEdit;
 class configUi;
 class QWidget;
 
-class emailNotifyerUi : public QObject
+class emailNotifierUi : public QObject
 {
    Q_OBJECT
 
    public:
-      emailNotifyerUi();
+      emailNotifierUi();
       QWidget* widget();
       const char* statusStr () const;
 
@@ -48,7 +48,7 @@ class emailNotifyerUi : public QObject
       QPushButton*   m_config;
       QTextEdit*     m_accountStatus;
       QWidget*       m_widget;
-      emailNotifyer* m_ntf;
+      emailNotifier* m_ntf;
 
 
 

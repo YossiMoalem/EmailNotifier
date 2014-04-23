@@ -27,13 +27,13 @@
 #include <QFont>
 #include <sstream>
 
-#include "emailNotifyerUi.h"
+#include "emailNotifierUi.h"
 #include "configUi.h"
-#include "emailNotifyer.h"
+#include "emailNotifier.h"
 
 static const char* checkingStatus = "Checking";
 
-emailNotifyerUi::emailNotifyerUi() : QObject (), m_widget(new QWidget), m_ntf(new emailNotifyer)
+emailNotifierUi::emailNotifierUi() : QObject (), m_widget(new QWidget), m_ntf(new emailNotifier)
 {
    m_accountString = new QString(checkingStatus);
    m_accountStatus = new QTextEdit(m_widget);
@@ -51,7 +51,7 @@ emailNotifyerUi::emailNotifyerUi() : QObject (), m_widget(new QWidget), m_ntf(ne
    m_widget->update();
 }
 
-void emailNotifyerUi::accountUpdated(int newMsgs)
+void emailNotifierUi::accountUpdated(int newMsgs)
 {
    qDebug ("Ui:Updating acount status");
    std::ostringstream sout;
@@ -70,7 +70,7 @@ void emailNotifyerUi::accountUpdated(int newMsgs)
    m_widget->update();
 }
 
-void emailNotifyerUi::showConfig()
+void emailNotifierUi::showConfig()
 {
    qDebug ("Ui:Show Config Ui");
 
@@ -80,7 +80,7 @@ void emailNotifyerUi::showConfig()
    cnf->show();
 }
 
-void emailNotifyerUi::updateAccount()
+void emailNotifierUi::updateAccount()
 {
    m_accountStatus->clear();
    m_accountStatus->insertPlainText(checkingStatus);
@@ -89,12 +89,12 @@ void emailNotifyerUi::updateAccount()
    m_ntf->readConfigAndUpdate();
 }
 
-const char* emailNotifyerUi::statusStr () const
+const char* emailNotifierUi::statusStr () const
 {
    return m_accountString->toUtf8();
 }
 
-QWidget* emailNotifyerUi::widget()
+QWidget* emailNotifierUi::widget()
 {
    return m_widget;
 }

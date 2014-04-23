@@ -23,19 +23,19 @@
 #include <QVBoxLayout>
 #include <QVBoxLayout>
 
-#include "notifyerApp.h"
+#include "notifierApp.h"
 
-notifyerApp::notifyerApp ()
+notifierApp::notifierApp ()
 {
-   m_emailNotifyer = new emailNotifyerUi() ;
+   m_emailNotifier = new emailNotifierUi() ;
    m_config = new QPushButton("Configure", this);
 
    QVBoxLayout*  appLayout = new QVBoxLayout();
-   appLayout->addWidget(m_emailNotifyer->widget());
+   appLayout->addWidget(m_emailNotifier->widget());
    appLayout->addWidget(m_config);
 
    connect (m_config, SIGNAL (clicked()),
-            m_emailNotifyer, SLOT(showConfig()));
+            m_emailNotifier, SLOT(showConfig()));
    setLayout (appLayout);
 }
 

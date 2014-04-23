@@ -21,13 +21,13 @@
 
 #include <QApplication>
 
-#include "../common/notifyerApp.h"
+#include "../common/notifierApp.h"
 
 int main (int argc, char* argv[])
 {
    QApplication app (argc, argv);
-   notifyerApp emailNotifyerUi;
-   emailNotifyerUi.show();
+   notifierApp emailNotifierUi;
+   emailNotifierUi.show();
 
    app.exec();
 }

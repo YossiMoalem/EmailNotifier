@@ -22,18 +22,18 @@
 #include <QTimer>
 #include "Pop3.h"
 #include "Imap.h"
-#include "emailNotifyer.h"
+#include "emailNotifier.h"
 #include "error.h"
 #include "emailChecker.h"
 
 //TODO: Convert to Singelton
-emailNotifyer::emailNotifyer(QObject* parent) : QObject(parent), m_account(NULL), m_checkTimer(new QTimer(this)), m_emailChecker(new emailChecker)
+emailNotifier::emailNotifier(QObject* parent) : QObject(parent), m_account(NULL), m_checkTimer(new QTimer(this)), m_emailChecker(new emailChecker)
 {
    connect (m_checkTimer, SIGNAL(timeout()),
          this, SLOT(checkAccount()));
 }
 
-void emailNotifyer::readConfigAndUpdate()
+void emailNotifier::readConfigAndUpdate()
 {
    qDebug("EmailNotify:Reading config");
    EmailError status = Email_no_error;
@@ -68,7 +68,7 @@ void emailNotifyer::readConfigAndUpdate()
       checkAccount ();
    }
 }
-void emailNotifyer::checkAccount ()
+void emailNotifier::checkAccount ()
 {
    if (m_account != NULL)
    {
@@ -81,7 +81,7 @@ void emailNotifyer::checkAccount ()
    }
 }
 
-void emailNotifyer::createAccount(AccountSettings& settings)
+void emailNotifier::createAccount(AccountSettings& settings)
 {
    if (m_account != NULL)
    {
@@ -129,7 +129,7 @@ void emailNotifyer::createAccount(AccountSettings& settings)
             this, SLOT(accountUpdated(int)), Qt::DirectConnection);
 }
 
-void emailNotifyer::accountUpdated(int newMsgs)
+void emailNotifier::accountUpdated(int newMsgs)
 {
    qDebug("EnailNotify:Got new account status");
    qDebug("EnailNotify:Account status has changed. Emiting new status(%d)", newMsgs);
