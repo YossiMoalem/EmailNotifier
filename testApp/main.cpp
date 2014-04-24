@@ -19,25 +19,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef NOTIFYER_APP
-#define NOTIFYER_APP 
+#include <QApplication>
 
-#include <QWidget>
-#include "../common/emailNotifierUi.h"
+#include "notifierApp.h"
 
-class QPushButton;
-
-class notifierApp : public QWidget
+int main (int argc, char* argv[])
 {
-   Q_OBJECT
+   QApplication app (argc, argv);
+   notifierApp emailNotifierUi;
+   emailNotifierUi.show();
 
-   private:
-      emailNotifierUi*     m_emailNotifier;
-      QPushButton*         m_config;
+   app.exec();
+}
 
-   public: 
-   notifierApp ();
-
-};
-
-#endif

@@ -23,7 +23,7 @@
  
 #include <plasma/svg.h>
 #include <plasma/theme.h>
-#include <QGridLayout>
+#include <QtWidgets/QGridLayout>
 #include <QString>
 #include <QPainter>
 #include <QWidget>
