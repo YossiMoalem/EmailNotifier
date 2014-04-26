@@ -34,12 +34,16 @@
 #define debug printf
 #else
 #define debug noop
-void noop (char*, ...) {}
+void noop (const char*, ...) {}
 #endif
 bool Socket::s_sslLoaded(false);
 
-Socket::Socket (const char* in_address, const char* in_port, bool in_ssl) : m_ssl(in_ssl), 
-                        m_socfd(NULL), m_sslfd(NULL), m_srv_addr_info(NULL), m_ctx(NULL)
+Socket::Socket (const char* in_address, const char* in_port, bool in_ssl) : 
+                        m_ssl(in_ssl), 
+                        m_socfd(NULL), 
+                        m_ctx(NULL),
+                        m_sslfd(NULL), 
+                        m_srv_addr_info(NULL)
 {
    if (in_address)
       m_address = in_address;
@@ -64,7 +68,8 @@ EmailError Socket::resolveHost ()
 {
    debug ("Socket: Resolving Host\n");
    EmailError       status            = Email_no_error; 
-   struct addrinfo   hints             = {0} ;
+   struct addrinfo   hints;
+   memset (&hints, 0, sizeof(hints));
 
    hints.ai_family      = AF_UNSPEC;
    hints.ai_socktype    = SOCK_STREAM;

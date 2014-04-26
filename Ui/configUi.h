@@ -22,8 +22,8 @@
 #ifndef CONFIG_UI_H
 #define CONFIG_UI_H
 
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QWidget>
+#include <QDialog>
+#include <QWidget>
 
 class QComboBox;
 class QLineEdit;

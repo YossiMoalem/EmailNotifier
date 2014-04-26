@@ -7,6 +7,8 @@ TARGET = emailNotifier
 DEPENDPATH += . ../Ui ../emailReader
 INCLUDEPATH += . ../Ui ../emailReader
 
+QMAKE_CXXFLAGS += -pedantic -Wall -Wextra
+
 # Input
 HEADERS += ./notifierApp.h \
            ../Ui/config.h \
@@ -31,5 +33,5 @@ SOURCES += main.cpp \
            ../emailReader/Pop3.cpp \
            ../emailReader/emailChecker.cpp \
            ../emailReader/Socket.cpp
-QT += widgets xml
+QT += gui xml
 LIBS += -lssl -lcrypto -lrt

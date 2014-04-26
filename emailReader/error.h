@@ -49,7 +49,7 @@ enum EmailError
 
    /* General Errors */
    Email_invalid_input                 = -301,
-   Email_last_err                      = -302,
+   Email_last_err                      = -302
 
 };
 
