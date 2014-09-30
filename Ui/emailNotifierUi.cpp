@@ -29,7 +29,9 @@
 
 #include "emailNotifierUi.h"
 #include "configUi.h"
+#include "config.h"
 #include "emailNotifier.h"
+#include "error.h"
 
 static const char* checkingStatus = "Checking";
 
@@ -86,7 +88,19 @@ void emailNotifierUi::updateAccount()
    m_accountStatus->insertPlainText(checkingStatus);
    m_widget->update();
 
-   m_ntf->readConfigAndUpdate();
+   AccountSettings accountSettings;
+   EmailError status =  accountSettings_load(&accountSettings); 
+   if (status != Email_no_error)
+   {
+      qDebug("EmailNotify:Failed to load config");
+   } else {
+    //TODO: this should be saved per account, not as general setings
+    GeneralSettings generalSettings;
+    //TODO: retval
+    generalSettings_load (&generalSettings);
+     accountSettings.updateInterval = generalSettings.updateIntervalMin * 60 + generalSettings.updateIntervalSec;
+     m_ntf->registerAccount(accountSettings);
+   }
 }
 
 const char* emailNotifierUi::statusStr () const

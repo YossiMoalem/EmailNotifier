@@ -240,9 +240,10 @@ void accountTab::save ()
    AccountSettings settings;
    settings.login = m_uname->text().toUtf8().constData();
    settings.pass  = m_pass->text().toUtf8().constData();
-   settings.type  = m_typeCBox->itemData(m_typeCBox->currentIndex()).toString().toUtf8().constData();
+   std::string accountName = m_typeCBox->itemData(m_typeCBox->currentIndex()).toString().toUtf8().constData();
+   settings.type  = accountNameToType(accountName);
    /*TODO: This shouod be transfered to config.cpp */
-   if (settings.type.compare(EMAIL_TYPE_POP3) == 0 || settings.type.compare(EMAIL_TYPE_IMAP) == 0)
+   if (settings.type == AT_POP3 || settings.type == AT_IMAP )
    {
       settings.host  = m_host->text().toUtf8().constData();
       settings.port  = (unsigned int)m_port->value();
@@ -262,7 +263,7 @@ void accountTab::load ()
    {
       m_uname->setText(QString(settings.login.c_str()));
       m_pass->setText(QString(settings.pass.c_str()));
-      const char* type = settings.type.c_str();
+      const char* type = AccountTypeName[settings.type];
       int index = m_typeCBox->findData(type);
       if (index >= 0)
          m_typeCBox->setCurrentIndex(index);

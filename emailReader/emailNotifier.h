@@ -22,12 +22,33 @@
 #ifndef EMAIL_NOTIFYER
 #define EMAIL_NOTIFYER
 
-#include "config.h"
-#include "emailAccount.h"
 #include <QObject>
 
 class QTimer;
 class emailChecker;
+class emailAccount;
+
+
+enum AccountType
+{
+  AT_ERR      = 0,
+  AT_POP3     = 1,
+  AT_IMAP     = 2,
+  AT_HOTMAIL  = 3,
+  AT_GMAIL    = 4,
+  AT_YAHOO    = 5,
+  AT_LAST
+};
+struct AccountSettings
+{
+   AccountType    type;
+   std::string    host;
+   unsigned int   port;
+   std::string    login;
+   std::string    pass;
+   bool           ssl;
+   unsigned int   updateInterval;
+};
 
 class emailNotifier : public QObject
 {
@@ -35,19 +56,19 @@ class emailNotifier : public QObject
 
    public:
    emailNotifier(QObject* parent = NULL);
-   void createAccount (AccountSettings& settings);
 
    private:
    emailAccount*  m_account;
    QTimer*        m_checkTimer;
-   bool           m_playNotification;
    int            m_updateInterval;
    emailChecker*  m_emailChecker;
+
+   void createAccount (AccountSettings& settings);
 
    public slots: 
    void checkAccount();
    void accountUpdated(int newMsgs);
-   void readConfigAndUpdate();
+   void registerAccount ( AccountSettings accountSettings );
 
    signals:
    void accountChanged(int newMsgs);

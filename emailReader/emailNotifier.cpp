@@ -33,7 +33,7 @@ emailNotifier::emailNotifier(QObject* parent) : QObject(parent), m_account(NULL)
          this, SLOT(checkAccount()));
 }
 
-void emailNotifier::readConfigAndUpdate()
+void emailNotifier::registerAccount( AccountSettings accountSettings )
 {
    qDebug("EmailNotify:Reading config");
    EmailError status = Email_no_error;
@@ -41,30 +41,19 @@ void emailNotifier::readConfigAndUpdate()
    if (m_emailChecker)
       m_emailChecker->terminate();
 
-   AccountSettings accountSettings;
-   status =  accountSettings_load(&accountSettings); 
-   if (status != Email_no_error)
+   createAccount(accountSettings);
+   if (m_account == NULL)
    {
-      qDebug("EmailNotify:Failed to load config");
-   } else {
-      createAccount(accountSettings);
-      if (m_account == NULL)
-      {
-         qDebug("EmailNotify:Error loading config");
-         status = Email_invalid_config_file;
-      }
+     qDebug("EmailNotify:Error loading config");
+     status = Email_invalid_config_file;
    }
-   if (status == Email_no_error)
-   {
-      GeneralSettings generalSettings;
-      status = generalSettings_load(&generalSettings);
-      m_playNotification = generalSettings.playNotification;
-      m_updateInterval = generalSettings.updateIntervalMin * 60 + generalSettings.updateIntervalSec;
-   }
+
    if (status != Email_no_error)
       emit (accountChanged(status));/* Emitting Error */
    else
    {
+  //TODO: this should be ret account!
+    m_updateInterval = accountSettings.updateInterval;
       checkAccount ();
    }
 }
@@ -83,12 +72,13 @@ void emailNotifier::checkAccount ()
 
 void emailNotifier::createAccount(AccountSettings& settings)
 {
+  //TODO : add updateInterval
    if (m_account != NULL)
    {
       delete (m_account);
       m_account = NULL;
    }
-   if (settings.type.compare(EMAIL_TYPE_POP3) == 0)
+   if (settings.type == AT_POP3)
    {
       qDebug("enailnotify:creating pop3 account");
       m_account = new Pop3(settings.host.c_str(),
@@ -97,7 +87,7 @@ void emailNotifier::createAccount(AccountSettings& settings)
             settings.pass.c_str(),
             settings.ssl); 
    }
-   else if (settings.type.compare(EMAIL_TYPE_IMAP) == 0)
+   else if (settings.type == AT_IMAP)
    {
       qDebug("EnailNotify:Creating Imap account");
       m_account = new Imap(settings.host.c_str(),
@@ -105,17 +95,17 @@ void emailNotifier::createAccount(AccountSettings& settings)
             settings.login.c_str(),
             settings.pass.c_str(),
             settings.ssl); 
-   } else if ( settings.type.compare(EMAIL_TYPE_HOTMAIL) == 0)
+   } else if ( settings.type == AT_HOTMAIL)
    {
       qDebug("EnailNotify:Creating Hotmail account");
       m_account = new Hotmail( settings.login.c_str(),
             settings.pass.c_str() ); 
-   } else if ( settings.type.compare(EMAIL_TYPE_GMAIL) == 0)
+   } else if ( settings.type == AT_GMAIL)
    {
       qDebug("EnailNotify:Creating Gmail account");
       m_account = new Gmail( settings.login.c_str(),
             settings.pass.c_str() ); 
-   } else if ( settings.type.compare(EMAIL_TYPE_YAHOO) == 0)
+   } else if ( settings.type == AT_YAHOO)
    {
       qDebug("EnailNotify:Creating Yahoo account");
       m_account = new Yahoo( settings.login.c_str(),
@@ -134,5 +124,4 @@ void emailNotifier::accountUpdated(int newMsgs)
    qDebug("EnailNotify:Got new account status");
    qDebug("EnailNotify:Account status has changed. Emiting new status(%d)", newMsgs);
    emit (accountChanged(newMsgs));
-
 }

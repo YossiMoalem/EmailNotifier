@@ -111,7 +111,7 @@ EmailError accountSettings_save(const AccountSettings* settings)
       accountRoot.removeChild(account);
    account = doc.createElement(ACCOUNT_ELEM_NAME);
 
-   _add_elem (doc, account, ACCOUNT_TYPE_ELEM_NAME,   settings->type.c_str());
+   _add_elem (doc, account, ACCOUNT_TYPE_ELEM_NAME,   AccountTypeName [settings->type] );
    _add_elem (doc, account, HOST_ELEM_NAME,           settings->host.c_str());
    _add_elem (doc, account, PORT_ELEM_NAME,           portStr.c_str());
    _add_elem (doc, account, LOGIN_ELEM_NAME,          settings->login.c_str());
@@ -154,7 +154,8 @@ EmailError accountSettings_load(AccountSettings* r_settings)
       } else {
          std::string portStr;
          std::string sslStr;
-         _read_elem_val (account, ACCOUNT_TYPE_ELEM_NAME,   r_settings->type);
+         std::string accountName;
+         _read_elem_val (account, ACCOUNT_TYPE_ELEM_NAME,   accountName);
          _read_elem_val (account, HOST_ELEM_NAME,           r_settings->host);
          _read_elem_val (account, PORT_ELEM_NAME,           portStr);
          _read_elem_val (account, LOGIN_ELEM_NAME,          r_settings->login);
@@ -164,6 +165,8 @@ EmailError accountSettings_load(AccountSettings* r_settings)
          std::istringstream sout (portStr);
          sout >> r_settings->port;
          r_settings->ssl = (sslStr.compare("TRUE") == 0) ? true : false; 
+         r_settings->type = accountNameToType(accountName);
+//TODO: Add updateInterval
       }
    }
    return status;
@@ -283,4 +286,14 @@ static EmailError _load_xml (QDomDocument &doc)
       file.close();
    }
    return status;
+}
+
+AccountType accountNameToType (const std::string& i_name)
+{
+  if (i_name.compare(EMAIL_TYPE_POP3)) return AT_POP3;
+  if (i_name.compare(EMAIL_TYPE_IMAP)) return AT_IMAP;
+  if (i_name.compare(EMAIL_TYPE_GMAIL)) return AT_GMAIL;
+  if (i_name.compare(EMAIL_TYPE_YAHOO)) return AT_YAHOO;
+  if (i_name.compare(EMAIL_TYPE_HOTMAIL)) return AT_HOTMAIL;
+  return AT_ERR;
 }

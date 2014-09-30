@@ -23,7 +23,7 @@
 #define NOTIFYER_APP 
 
 #include <QWidget>
-#include "emailNotifierUi.h"
+#include "../Ui/emailNotifierUi.h"
 
 class QPushButton;
 
