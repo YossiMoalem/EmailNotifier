@@ -30,7 +30,6 @@
 #include "emailNotifierUi.h"
 #include "configUi.h"
 #include "config.h"
-#include "emailNotifier.h"
 #include "error.h"
 
 static const char* checkingStatus = "Checking";
@@ -45,15 +44,13 @@ emailNotifierUi::emailNotifierUi() : QObject (), m_widget(new QWidget), m_ntf(ne
    QVBoxLayout*  accountLayout = new QVBoxLayout(m_widget);
    accountLayout->addWidget(m_accountStatus);
 
-   connect (m_ntf, SIGNAL(accountChanged(int)),
-            this, SLOT(accountUpdated(int)));
    updateAccount();
    m_widget->setLayout(accountLayout);
    m_widget->resize (200, 200);
    m_widget->update();
 }
 
-void emailNotifierUi::accountUpdated(int newMsgs)
+void emailNotifierUi::onAccountUpdated(int newMsgs)
 {
    qDebug ("Ui:Updating acount status");
    std::ostringstream sout;
@@ -99,7 +96,7 @@ void emailNotifierUi::updateAccount()
     //TODO: retval
     generalSettings_load (&generalSettings);
      accountSettings.updateInterval = generalSettings.updateIntervalMin * 60 + generalSettings.updateIntervalSec;
-     m_ntf->registerAccount(accountSettings);
+     m_ntf->registerAccount(accountSettings, this);
    }
 }
 

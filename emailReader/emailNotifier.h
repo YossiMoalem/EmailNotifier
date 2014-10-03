@@ -39,6 +39,14 @@ enum AccountType
   AT_YAHOO    = 5,
   AT_LAST
 };
+
+class emailNotifiableIntf
+{
+    public:
+    virtual void onAccountUpdated (int newMessages) = 0;
+    virtual void onUpdateError (int status ) = 0;
+};
+
 struct AccountSettings
 {
    AccountType    type;
@@ -49,7 +57,6 @@ struct AccountSettings
    bool           ssl;
    unsigned int   updateInterval;
 };
-
 class emailNotifier : public QObject
 {
    Q_OBJECT
@@ -62,16 +69,15 @@ class emailNotifier : public QObject
    QTimer*        m_checkTimer;
    int            m_updateInterval;
    emailChecker*  m_emailChecker;
+    emailNotifiableIntf* m_handler;
 
    void createAccount (AccountSettings& settings);
 
    public slots: 
    void checkAccount();
    void accountUpdated(int newMsgs);
-   void registerAccount ( AccountSettings accountSettings );
+   void registerAccount ( AccountSettings accountSettings, emailNotifiableIntf* handler );
 
-   signals:
-   void accountChanged(int newMsgs);
 };
 
 #endif

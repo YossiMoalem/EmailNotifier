@@ -20,10 +20,10 @@
  */
 
 #include <QObject>
+#include "emailNotifier.h"
 
 #include <QPaintEvent>
 class QLabel;
-class emailNotifier;
 class QPainter;
 class QRect;
 class QPushButton;
@@ -31,7 +31,7 @@ class QTextEdit;
 class configUi;
 class QWidget;
 
-class emailNotifierUi : public QObject
+class emailNotifierUi : public QObject, public emailNotifiableIntf
 {
    Q_OBJECT
 
@@ -39,6 +39,8 @@ class emailNotifierUi : public QObject
       emailNotifierUi();
       QWidget* widget();
       const char* statusStr () const;
+      void onAccountUpdated (int newMsgs);
+    void onUpdateError (int status) {}
 
       public slots:
          void showConfig();
@@ -53,7 +55,6 @@ class emailNotifierUi : public QObject
 
 
    private slots:
-      void accountUpdated (int newMsgs);
       void updateAccount ();
 
    signals:

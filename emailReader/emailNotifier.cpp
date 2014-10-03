@@ -33,7 +33,7 @@ emailNotifier::emailNotifier(QObject* parent) : QObject(parent), m_account(NULL)
          this, SLOT(checkAccount()));
 }
 
-void emailNotifier::registerAccount( AccountSettings accountSettings )
+void emailNotifier::registerAccount( AccountSettings accountSettings, emailNotifiableIntf* handler )
 {
    qDebug("EmailNotify:Reading config");
    EmailError status = Email_no_error;
@@ -42,6 +42,10 @@ void emailNotifier::registerAccount( AccountSettings accountSettings )
       m_emailChecker->terminate();
 
    createAccount(accountSettings);
+  //TODO: this should be ret account!
+    m_updateInterval = accountSettings.updateInterval;
+    m_handler = handler;
+
    if (m_account == NULL)
    {
      qDebug("EmailNotify:Error loading config");
@@ -49,13 +53,9 @@ void emailNotifier::registerAccount( AccountSettings accountSettings )
    }
 
    if (status != Email_no_error)
-      emit (accountChanged(status));/* Emitting Error */
+        m_handler->onAccountUpdated(status);// TODO: Replace with onUpdateError()
    else
-   {
-  //TODO: this should be ret account!
-    m_updateInterval = accountSettings.updateInterval;
       checkAccount ();
-   }
 }
 void emailNotifier::checkAccount ()
 {
@@ -123,5 +123,5 @@ void emailNotifier::accountUpdated(int newMsgs)
 {
    qDebug("EnailNotify:Got new account status");
    qDebug("EnailNotify:Account status has changed. Emiting new status(%d)", newMsgs);
-   emit (accountChanged(newMsgs));
+    m_handler->onAccountUpdated(newMsgs);
 }
