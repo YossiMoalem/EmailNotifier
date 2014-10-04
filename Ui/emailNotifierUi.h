@@ -40,7 +40,7 @@ class emailNotifierUi : public QObject, public emailNotifiableIntf
       QWidget* widget();
       const char* statusStr () const;
       void onAccountUpdated (int newMsgs);
-    void onUpdateError (int status) {}
+    void onUpdateError (int status);
 
       public slots:
          void showConfig();
@@ -52,12 +52,16 @@ class emailNotifierUi : public QObject, public emailNotifiableIntf
       QWidget*       m_widget;
       emailNotifier* m_ntf;
 
+    //  int           m_curNumOfMssgs;
+    //  int           m_curStatus;
+
 
 
    private slots:
-      void updateAccount ();
+      void accountUpdated (int newMsgs);
+   void registerAccount();
 
    signals:
-      void sigAccountChanged (int newMsg);
+      void sigAccountUpdated(int newMsg);
 
 };

@@ -44,13 +44,27 @@ emailNotifierUi::emailNotifierUi() : QObject (), m_widget(new QWidget), m_ntf(ne
    QVBoxLayout*  accountLayout = new QVBoxLayout(m_widget);
    accountLayout->addWidget(m_accountStatus);
 
-   updateAccount();
+   registerAccount();
    m_widget->setLayout(accountLayout);
    m_widget->resize (200, 200);
    m_widget->update();
+
+  connect (this, SIGNAL(sigAccountUpdated(int)),
+          this, SLOT(accountUpdated(int)));
 }
 
+void emailNotifierUi::onUpdateError(int newStatus)
+{
+  //m_curStatus = newStatus; 
+  emit (sigAccountUpdated (newStatus));
+}
 void emailNotifierUi::onAccountUpdated(int newMsgs)
+{
+  //m_curMsgs = newNsgs;
+  emit(sigAccountUpdated(newMsgs));
+}
+
+void emailNotifierUi::accountUpdated(int newMsgs)
 {
    qDebug ("Ui:Updating acount status");
    std::ostringstream sout;
@@ -75,11 +89,11 @@ void emailNotifierUi::showConfig()
 
    configUi*  cnf = new configUi(m_widget);
    connect (cnf, SIGNAL(configUpdated()),
-            this, SLOT(updateAccount()));
+            this, SLOT(registerAccount()));
    cnf->show();
 }
 
-void emailNotifierUi::updateAccount()
+void emailNotifierUi::registerAccount()
 {
    m_accountStatus->clear();
    m_accountStatus->insertPlainText(checkingStatus);

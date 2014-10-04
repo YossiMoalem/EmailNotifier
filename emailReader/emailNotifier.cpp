@@ -52,7 +52,7 @@ void emailNotifier::registerAccount( AccountSettings accountSettings, emailNotif
    }
 
    if (status != Email_no_error)
-        handler->onAccountUpdated(status);// TODO: Replace with onUpdateError()
+        handler->onUpdateError(status);
    else
       checkAccount ();
 }
