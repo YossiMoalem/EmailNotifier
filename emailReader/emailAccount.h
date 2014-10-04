@@ -22,7 +22,6 @@
 #ifndef EMAIL_ACCOUNT
 #define EMAIL_ACCOUNT
 
-#include <QObject>
 #include <string>
 #include "error.h"
 #include "emailNotifier.h"
@@ -30,9 +29,8 @@
 class Socket;
 using namespace std;
 
-class emailAccount : public QObject
+class emailAccount 
 {
-   Q_OBJECT
    protected:
       string       m_server_address;
       int          m_port;
@@ -52,7 +50,7 @@ class emailAccount : public QObject
 
    public:
       emailAccount (const char* in_server_address, int in_port, const char* in_uname,
-            const char* in_pass, bool in_ssl, emailNotifiableIntf* i_handler, QObject* parent ); 
+            const char* in_pass, bool in_ssl, emailNotifiableIntf* i_handler); 
       virtual ~emailAccount() = 0;
       virtual void checkAccount();
    void accountUpdated(int newMsgs);
