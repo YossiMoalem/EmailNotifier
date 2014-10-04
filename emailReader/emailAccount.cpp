@@ -27,7 +27,7 @@
 #define ARG_MAX_LEN 40
 #define RESPONSE_MAX_LEM 512
 emailAccount::emailAccount (const char* in_server_address, int in_port, const char* in_uname,
-      const char* in_pass, bool in_ssl, QObject* parent) : QObject (parent), m_port (in_port), m_ssl(in_ssl), m_connected(false)
+      const char* in_pass, bool in_ssl, emailNotifiableIntf* i_handler , QObject* parent) : QObject (parent), m_port (in_port), m_ssl(in_ssl), m_connected(false), m_handler(i_handler)
 
 {
    if (in_server_address)
@@ -70,6 +70,7 @@ EmailError emailAccount::connect ()
    }
    return status;
 }
+
 void emailAccount::checkAccount() 
 {
    qDebug ("EmailAccount: Checking Account");
@@ -113,9 +114,15 @@ void emailAccount::checkAccount()
    if (status == Email_no_error)
    {
       qDebug ("EmailAccount:Checking account finished successfully. Emiting %d", new_msgs);
-      emit (accountUpdated(new_msgs));
+      accountUpdated(new_msgs);
    } else {
       qDebug ("EmailAccount:Checking account finished with error. Emiting %d",status);
-      emit (accountUpdated(status));
+      accountUpdated(status); //TODO:
    }
+}
+
+void emailAccount::accountUpdated(int newMsgs)
+{
+   qDebug("EnailAccount:Account status has changed. Emiting new status(%d)", newMsgs);
+    m_handler->onAccountUpdated(newMsgs);
 }

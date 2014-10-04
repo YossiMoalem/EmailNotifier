@@ -45,6 +45,7 @@ EmailError emailChecker::checkAccount (emailAccount* acount)
 void emailChecker::run ()
 {
    while(!m_accounts.empty()) m_accounts.pop(); /* When re-run after changing account */
+qDebug ("Starting emailChecker main loop");
    while (true)
    {
       if (m_accounts.empty())

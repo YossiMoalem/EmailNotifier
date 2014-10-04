@@ -35,14 +35,14 @@ class Imap : public emailAccount
       virtual EmailError check_response (char* in_buff, EmailError in_error_msg) const;
 
    public:
-   Imap(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, QObject* parent = NULL);
+   Imap(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, emailNotifiableIntf* i_handler, QObject* parent = NULL);
    ~Imap();
 };
 
 class Gmail : public Imap
 {
    public:
-   Gmail (const char* in_uname, const char* in_pass, QObject* parent = NULL);
+   Gmail (const char* in_uname, const char* in_pass, emailNotifiableIntf* i_handler, QObject* parent = NULL);
    virtual ~Gmail ();
 };
 

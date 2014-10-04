@@ -32,8 +32,8 @@
 #define OK "+OK"
 #define ERR "-ERR"
 
-Pop3::Pop3(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, QObject* parent) : 
-               emailAccount(in_server_address, in_port, in_uname, in_pass, in_ssl, parent)
+Pop3::Pop3(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, emailNotifiableIntf* i_handler, QObject* parent) : 
+               emailAccount(in_server_address, in_port, in_uname, in_pass, in_ssl, i_handler, parent)
 {
    qDebug ("Pop3:Creating account for: %s @ %s", in_uname, in_server_address);
 }
@@ -106,7 +106,7 @@ EmailError Pop3::check_response(char* in_buff, EmailError in_err_msg) const
  *                Hotmail
 \ ********************************************************/
 
-Hotmail::Hotmail(const char* in_uname, const char* in_pass, QObject* parent) : Pop3 ("pop3.live.com", 995, in_uname, in_pass, true, parent) 
+Hotmail::Hotmail(const char* in_uname, const char* in_pass, emailNotifiableIntf* i_handler, QObject* parent) : Pop3 ("pop3.live.com", 995, in_uname, in_pass, true, i_handler, parent) 
 {
    m_uname += "@hotmail.com";
 }
@@ -117,7 +117,7 @@ Hotmail::~Hotmail () {}
  *                     Yahoo 
 \ ********************************************************/
 
-Yahoo::Yahoo (const char* in_uname, const char* in_pass, QObject* parent) : Pop3("pop.mail.yahoo.com", 995, in_uname, in_pass, true, parent) 
+Yahoo::Yahoo (const char* in_uname, const char* in_pass, emailNotifiableIntf* i_handler, QObject* parent) : Pop3("pop.mail.yahoo.com", 995, in_uname, in_pass, true, i_handler, parent) 
 {
    m_uname += "@yahoo.com";
 }

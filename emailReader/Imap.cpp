@@ -27,8 +27,8 @@
 #define OK "OK"
 #define ERR "NO"
 
-Imap::Imap(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, QObject* parent) : 
-               emailAccount(in_server_address, in_port, in_uname, in_pass, in_ssl, parent)
+Imap::Imap(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, emailNotifiableIntf* i_handler, QObject* parent) : 
+               emailAccount(in_server_address, in_port, in_uname, in_pass, in_ssl, i_handler, parent)
 {
    qDebug ("Imap:Creating account for: %s @ %s", in_uname, in_server_address);
 }
@@ -91,7 +91,7 @@ EmailError Imap::check_response(char* in_buff, EmailError in_err_msg) const
  *                      Gmail
 \ ********************************************************/
 
-Gmail::Gmail(const char* in_uname, const char* in_pass, QObject* parent) : Imap("imap.gmail.com", 993, in_uname, in_pass, true, parent) 
+Gmail::Gmail(const char* in_uname, const char* in_pass, emailNotifiableIntf* i_handler, QObject* parent) : Imap("imap.gmail.com", 993, in_uname, in_pass, true, i_handler, parent) 
 {
    m_uname += "@gmail.com";
 }

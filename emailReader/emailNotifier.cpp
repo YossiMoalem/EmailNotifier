@@ -41,10 +41,9 @@ void emailNotifier::registerAccount( AccountSettings accountSettings, emailNotif
    if (m_emailChecker)
       m_emailChecker->terminate();
 
-   createAccount(accountSettings);
+   createAccount(accountSettings, handler);
   //TODO: this should be ret account!
     m_updateInterval = accountSettings.updateInterval;
-    m_handler = handler;
 
    if (m_account == NULL)
    {
@@ -53,7 +52,7 @@ void emailNotifier::registerAccount( AccountSettings accountSettings, emailNotif
    }
 
    if (status != Email_no_error)
-        m_handler->onAccountUpdated(status);// TODO: Replace with onUpdateError()
+        handler->onAccountUpdated(status);// TODO: Replace with onUpdateError()
    else
       checkAccount ();
 }
@@ -70,7 +69,7 @@ void emailNotifier::checkAccount ()
    }
 }
 
-void emailNotifier::createAccount(AccountSettings& settings)
+void emailNotifier::createAccount(AccountSettings& settings, emailNotifiableIntf* i_handler)
 {
   //TODO : add updateInterval
    if (m_account != NULL)
@@ -85,7 +84,8 @@ void emailNotifier::createAccount(AccountSettings& settings)
             settings.port,
             settings.login.c_str(),
             settings.pass.c_str(),
-            settings.ssl); 
+            settings.ssl,
+            i_handler); 
    }
    else if (settings.type == AT_IMAP)
    {
@@ -94,34 +94,29 @@ void emailNotifier::createAccount(AccountSettings& settings)
             settings.port,
             settings.login.c_str(),
             settings.pass.c_str(),
-            settings.ssl); 
+            settings.ssl,
+            i_handler); 
    } else if ( settings.type == AT_HOTMAIL)
    {
       qDebug("EnailNotify:Creating Hotmail account");
       m_account = new Hotmail( settings.login.c_str(),
-            settings.pass.c_str() ); 
+            settings.pass.c_str() ,
+            i_handler); 
    } else if ( settings.type == AT_GMAIL)
    {
       qDebug("EnailNotify:Creating Gmail account");
       m_account = new Gmail( settings.login.c_str(),
-            settings.pass.c_str() ); 
+            settings.pass.c_str() ,
+            i_handler); 
    } else if ( settings.type == AT_YAHOO)
    {
       qDebug("EnailNotify:Creating Yahoo account");
       m_account = new Yahoo( settings.login.c_str(),
-            settings.pass.c_str() ); 
+            settings.pass.c_str(),
+            i_handler ); 
    } else {
       qDebug("EnailNotify:Unknown account type");
       m_account = NULL;
    }
-   if (m_account != NULL)
-      connect (m_account, SIGNAL(accountUpdated(int)), 
-            this, SLOT(accountUpdated(int)), Qt::DirectConnection);
 }
 
-void emailNotifier::accountUpdated(int newMsgs)
-{
-   qDebug("EnailNotify:Got new account status");
-   qDebug("EnailNotify:Account status has changed. Emiting new status(%d)", newMsgs);
-    m_handler->onAccountUpdated(newMsgs);
-}

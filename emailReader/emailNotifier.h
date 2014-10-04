@@ -69,13 +69,11 @@ class emailNotifier : public QObject
    QTimer*        m_checkTimer;
    int            m_updateInterval;
    emailChecker*  m_emailChecker;
-    emailNotifiableIntf* m_handler;
 
-   void createAccount (AccountSettings& settings);
+   void createAccount (AccountSettings& settings, emailNotifiableIntf* i_handler);
 
    public slots: 
    void checkAccount();
-   void accountUpdated(int newMsgs);
    void registerAccount ( AccountSettings accountSettings, emailNotifiableIntf* handler );
 
 };
