@@ -34,21 +34,21 @@ class Pop3 : public emailAccount
       virtual EmailError check_response (char* in_buff, EmailError in_error_msg) const;
 
    public:
-      Pop3(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, emailNotifiableIntf* i_handler);
+      Pop3(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, int updateInterval, emailNotifiableIntf* i_handler);
       virtual ~Pop3();
 };
 
 class Hotmail : public Pop3
 {
    public:
-      Hotmail (const char* in_uname, const char* in_pass, emailNotifiableIntf* i_handler);
+      Hotmail (const char* in_uname, const char* in_pass, int updateInterval, emailNotifiableIntf* i_handler);
      virtual  ~Hotmail();
 };
 
 class Yahoo: public Pop3
 {
    public: 
-      Yahoo(const char* in_uname, const char* in_pass, emailNotifiableIntf* i_handler);
+      Yahoo(const char* in_uname, const char* in_pass, int updateInterval, emailNotifiableIntf* i_handler);
       virtual ~Yahoo();
 };
 #endif

@@ -27,8 +27,8 @@
 #define ARG_MAX_LEN 40
 #define RESPONSE_MAX_LEM 512
 emailAccount::emailAccount (const char* in_server_address, int in_port, const char* in_uname,
-      const char* in_pass, bool in_ssl, emailNotifiableIntf* i_handler ) 
-: m_port (in_port), m_ssl(in_ssl), m_connected(false), m_handler(i_handler)
+      const char* in_pass, bool in_ssl, int updateInterval, emailNotifiableIntf* i_handler ) 
+: m_port (in_port), m_ssl(in_ssl), m_connected(false), m_updateInterval (updateInterval), m_handler(i_handler)
 
 {
    if (in_server_address)
@@ -127,3 +127,11 @@ void emailAccount::accountUpdated(int newMsgs)
    qDebug("EnailAccount:Account status has changed. Emiting new status(%d)", newMsgs);
     m_handler->onAccountUpdated(newMsgs);
 }
+ void emailAccount::run ()
+ {
+   for (;;)
+   {
+     checkAccount();
+     sleep(m_updateInterval);
+   }
+ }

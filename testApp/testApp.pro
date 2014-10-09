@@ -19,7 +19,6 @@ HEADERS += ./notifierApp.h \
            ../emailReader/error.h \
            ../emailReader/Imap.h \
            ../emailReader/Pop3.h \
-           ../emailReader/emailChecker.h \
            ../emailReader/Socket.h
 SOURCES += main.cpp \
            ./notifierApp.cpp \
@@ -31,7 +30,6 @@ SOURCES += main.cpp \
            ../emailReader/error.cpp \
            ../emailReader/Imap.cpp \
            ../emailReader/Pop3.cpp \
-           ../emailReader/emailChecker.cpp \
            ../emailReader/Socket.cpp
 QT += gui xml
 LIBS += -lssl -lcrypto -lrt
