@@ -24,17 +24,14 @@
 #include "emailNotifier.h"
 #include "error.h"
 
-emailNotifier::emailNotifier() : m_account(NULL)
-{ }
-
-void emailNotifier::registerAccount( AccountSettings accountSettings, emailNotifiableIntf* handler )
+accountHndl emailNotifier::registerAccount( AccountSettings accountSettings, emailNotifiableIntf* handler )
 {
    qDebug("EmailNotify:Reading config");
    EmailError status = Email_no_error;
 
-   m_account = createAccount(accountSettings, handler);
+   emailAccount* newAccount = createAccount(accountSettings, handler);
 
-   if (m_account == NULL)
+   if (newAccount == NULL)
    {
      qDebug("EmailNotify:Error loading config");
      status = Email_invalid_config_file;
@@ -43,7 +40,9 @@ void emailNotifier::registerAccount( AccountSettings accountSettings, emailNotif
    if (status != Email_no_error)
         handler->onUpdateError(status);
    else
-    m_account->start();
+    newAccount->start();
+
+  return newAccount;
 }
 
 emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotifiableIntf* i_handler)

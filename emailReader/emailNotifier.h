@@ -53,14 +53,15 @@ struct AccountSettings
    bool           ssl;
    unsigned int   updateInterval;
 };
+
+typedef emailAccount* accountHndl;
+
 class emailNotifier 
 {
    public:
-   emailNotifier();
-   void registerAccount ( AccountSettings accountSettings, emailNotifiableIntf* handler );
+   accountHndl registerAccount ( AccountSettings accountSettings, emailNotifiableIntf* handler );
 
    private:
-   emailAccount*  m_account;
    emailAccount*  createAccount (AccountSettings& settings, emailNotifiableIntf* i_handler);
 };
 #endif
