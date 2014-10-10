@@ -19,31 +19,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <QTimer>
 #include "Pop3.h"
 #include "Imap.h"
 #include "emailNotifier.h"
 #include "error.h"
-#include "emailChecker.h"
 
-//TODO: Convert to Singelton
-emailNotifier::emailNotifier(QObject* parent) : QObject(parent), m_account(NULL), m_checkTimer(new QTimer(this)), m_emailChecker(new emailChecker)
-{
-   connect (m_checkTimer, SIGNAL(timeout()),
-         this, SLOT(checkAccount()));
-}
+emailNotifier::emailNotifier() : m_account(NULL)
+{ }
 
 void emailNotifier::registerAccount( AccountSettings accountSettings, emailNotifiableIntf* handler )
 {
    qDebug("EmailNotify:Reading config");
    EmailError status = Email_no_error;
-   
-   if (m_emailChecker)
-      m_emailChecker->terminate();
 
-   createAccount(accountSettings, handler);
-  //TODO: this should be ret account!
-    m_updateInterval = accountSettings.updateInterval;
+   m_account = createAccount(accountSettings, handler);
 
    if (m_account == NULL)
    {
@@ -54,69 +43,74 @@ void emailNotifier::registerAccount( AccountSettings accountSettings, emailNotif
    if (status != Email_no_error)
         handler->onUpdateError(status);
    else
-      checkAccount ();
-}
-void emailNotifier::checkAccount ()
-{
-   if (m_account != NULL)
-   {
-      qDebug("EnailNotify:Checking Account");
-      if (m_checkTimer->isActive())
-         m_checkTimer->stop();
-      m_emailChecker->start();
-      m_emailChecker->checkAccount(m_account);
-      m_checkTimer->start(m_updateInterval * 1000);
-   }
+    m_account->start();
 }
 
-void emailNotifier::createAccount(AccountSettings& settings, emailNotifiableIntf* i_handler)
+emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotifiableIntf* i_handler)
 {
-  //TODO : add updateInterval
-   if (m_account != NULL)
-   {
-      delete (m_account);
-      m_account = NULL;
-   }
-   if (settings.type == AT_POP3)
-   {
-      qDebug("enailnotify:creating pop3 account");
-      m_account = new Pop3(settings.host.c_str(),
+  emailAccount* newAccount = NULL;
+
+
+  switch (settings.type)
+  {
+    case AT_POP3:
+      {
+        qDebug("enailnotify:creating pop3 account");
+        newAccount = new Pop3(settings.host.c_str(),
             settings.port,
             settings.login.c_str(),
             settings.pass.c_str(),
             settings.ssl,
+            settings.updateInterval,
             i_handler); 
-   }
-   else if (settings.type == AT_IMAP)
-   {
-      qDebug("EnailNotify:Creating Imap account");
-      m_account = new Imap(settings.host.c_str(),
+        break;
+      }
+    case AT_IMAP:
+      {
+        qDebug("EnailNotify:Creating Imap account");
+        newAccount = new Imap(settings.host.c_str(),
             settings.port,
             settings.login.c_str(),
             settings.pass.c_str(),
             settings.ssl,
+            settings.updateInterval,
             i_handler); 
-   } else if ( settings.type == AT_HOTMAIL)
-   {
-      qDebug("EnailNotify:Creating Hotmail account");
-      m_account = new Hotmail( settings.login.c_str(),
+        break;
+      }
+    case AT_HOTMAIL:
+      {
+        qDebug("EnailNotify:Creating Hotmail account");
+        newAccount = new Hotmail( settings.login.c_str(),
             settings.pass.c_str() ,
+            settings.updateInterval,
             i_handler); 
-   } else if ( settings.type == AT_GMAIL)
-   {
-      qDebug("EnailNotify:Creating Gmail account");
-      m_account = new Gmail( settings.login.c_str(),
+        break;
+      }
+    case AT_GMAIL:
+      {
+        qDebug("EnailNotify:Creating Gmail account");
+        newAccount = new Gmail( settings.login.c_str(),
             settings.pass.c_str() ,
+            settings.updateInterval,
             i_handler); 
-   } else if ( settings.type == AT_YAHOO)
-   {
-      qDebug("EnailNotify:Creating Yahoo account");
-      m_account = new Yahoo( settings.login.c_str(),
+        break;
+      } 
+    case AT_YAHOO:
+      {
+        qDebug("EnailNotify:Creating Yahoo account");
+        newAccount = new Yahoo( settings.login.c_str(),
             settings.pass.c_str(),
+            settings.updateInterval,
             i_handler ); 
-   } else {
-      qDebug("EnailNotify:Unknown account type");
-      m_account = NULL;
-   }
+        break;
+      } 
+    default:
+      {
+        qDebug("EnailNotify:Unknown account type");
+        newAccount = NULL;
+        break;
+      }
+  }
+  return newAccount;
 }
 

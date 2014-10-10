@@ -22,10 +22,6 @@
 #ifndef EMAIL_NOTIFYER
 #define EMAIL_NOTIFYER
 
-#include <QObject>
-
-class QTimer;
-class emailChecker;
 class emailAccount;
 
 
@@ -57,25 +53,14 @@ struct AccountSettings
    bool           ssl;
    unsigned int   updateInterval;
 };
-class emailNotifier : public QObject
+class emailNotifier 
 {
-   Q_OBJECT
-
    public:
-   emailNotifier(QObject* parent = NULL);
+   emailNotifier();
+   void registerAccount ( AccountSettings accountSettings, emailNotifiableIntf* handler );
 
    private:
    emailAccount*  m_account;
-   QTimer*        m_checkTimer;
-   int            m_updateInterval;
-   emailChecker*  m_emailChecker;
-
-   void createAccount (AccountSettings& settings, emailNotifiableIntf* i_handler);
-
-   public slots: 
-   void checkAccount();
-   void registerAccount ( AccountSettings accountSettings, emailNotifiableIntf* handler );
-
+   emailAccount*  createAccount (AccountSettings& settings, emailNotifiableIntf* i_handler);
 };
-
 #endif
