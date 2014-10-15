@@ -35,7 +35,10 @@ emailAccount::emailAccount (const char* in_server_address, int in_port, const ch
       m_server_address = in_server_address;
 
    if (in_uname)
+   {
       m_uname = in_uname;
+     m_uname.erase(m_uname.find_last_not_of(" \n\r\t")+1);
+   }
 
    if (in_pass)
       m_pass = in_pass;
