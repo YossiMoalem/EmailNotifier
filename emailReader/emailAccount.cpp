@@ -22,6 +22,18 @@
 #include "emailAccount.h"
 #include "Socket.h"
 #include <sstream>
+#include <ace/Log_Msg.h>
+
+void* startChechingAccount (void* account)
+{
+   for (;;)
+   {
+     ((emailAccount*)account)->checkAccount();
+     sleep(((emailAccount*)account)->m_updateInterval);
+   }
+   return NULL;
+}
+
 
 /* Some values from RFC1939 (Pop3)*/
 #define ARG_MAX_LEN 40
@@ -56,13 +68,13 @@ emailAccount::~emailAccount()
 
 EmailError emailAccount::connect ()
 {
-   qDebug ("EmailAccount:Connecting to server (%s)", m_server_address.c_str());
+   ACE_DEBUG((LM_INFO, "EmailAccount:Connecting to server (%s)\n", m_server_address.c_str()));
    EmailError status = Email_no_error;
    char buff[RESPONSE_MAX_LEM] = {0};
    /* Connect to Server */
    if (m_socket->connect() != Email_no_error)
    {
-      qDebug ("EmailAccount:Cannot connect Socket");
+      ACE_DEBUG((LM_ERROR, "EmailAccount:Cannot connect Socket\n"));
       status = Email_connection_failed;
    }
    if (status == Email_no_error )
@@ -77,7 +89,7 @@ EmailError emailAccount::connect ()
 
 void emailAccount::checkAccount() 
 {
-   qDebug ("EmailAccount: Checking Account");
+   ACE_DEBUG((LM_INFO, "EmailAccount: Checking Account\n"));
    EmailError  status      = Email_no_error;
 
    int         new_msgs    = -1;
@@ -86,12 +98,12 @@ void emailAccount::checkAccount()
       status = connect();
       if (status != Email_no_error)
       {
-         qDebug ("EmailAccount: Error Connecting to server");
+         ACE_DEBUG((LM_ERROR, "EmailAccount: Error Connecting to server\n"));
       } else {
          status = authenticate();
          if (status != Email_no_error )
          {
-            qDebug ("EmailAccount: Error authenticating");
+            ACE_DEBUG((LM_WARNING, "EmailAccount: Error authenticating\n"));
          } else {
             status = getNumOfNewMsgs(&new_msgs);
             if (status == Email_no_error)
@@ -99,11 +111,11 @@ void emailAccount::checkAccount()
          }
       }
    } else { /* Already connected */
-      qDebug ("EmailAccount: Attempting to use existing account");
+      ACE_DEBUG((LM_INFO, "EmailAccount: Attempting to use existing account\n"));
       status = getNumOfNewMsgs(&new_msgs);
       if (status != Email_no_error)
       {
-         qDebug("EmailAccount:Existing connection may have dropped. Attempting to re-connect");
+         ACE_DEBUG((LM_INFO, "EmailAccount:Existing connection may have dropped. Attempting to re-connect\n"));
          logout();
          m_socket->close();
          m_connected = false;
@@ -117,24 +129,16 @@ void emailAccount::checkAccount()
 #endif
    if (status == Email_no_error)
    {
-      qDebug ("EmailAccount:Checking account finished successfully. Emiting %d", new_msgs);
+      ACE_DEBUG((LM_INFO, "EmailAccount:Checking account finished successfully. Emiting %d\n", new_msgs));
       accountUpdated(new_msgs);
    } else {
-      qDebug ("EmailAccount:Checking account finished with error. Emiting %d",status);
+      ACE_DEBUG((LM_WARNING, "EmailAccount:Checking account finished with error. Emiting %d\n",status));
       accountUpdated(status); //TODO:
    }
 }
 
 void emailAccount::accountUpdated(int newMsgs)
 {
-   qDebug("EnailAccount:Account status has changed. Emiting new status(%d)", newMsgs);
+   ACE_DEBUG((LM_INFO, "EnailAccount:Account status has changed. Emiting new status(%d)\n", newMsgs));
     m_handler->onAccountUpdated(newMsgs);
 }
- void emailAccount::run ()
- {
-   for (;;)
-   {
-     checkAccount();
-     sleep(m_updateInterval);
-   }
- }

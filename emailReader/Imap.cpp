@@ -21,6 +21,7 @@
 
 #include "Imap.h"
 #include "Socket.h"
+#include <ace/Log_Msg.h>
 
 #define IMAP_RESPONSE_MAX_LEM 512
 /* Response from Server */
@@ -30,7 +31,7 @@
 Imap::Imap(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, int updateInterval, emailNotifiableIntf* i_handler) : 
                emailAccount(in_server_address, in_port, in_uname, in_pass, in_ssl, updateInterval, i_handler)
 {
-   qDebug ("Imap:Creating account for: %s @ %s", in_uname, in_server_address);
+   ACE_DEBUG((LM_INFO, "Imap:Creating account for: %s@%s\n", in_uname, in_server_address));
 }
 
 Imap::~Imap() {}
@@ -38,7 +39,7 @@ EmailError  Imap::authenticate()
 {
    char buff[IMAP_RESPONSE_MAX_LEM] = {0};
    EmailError status = Email_no_error;
-   qDebug ("Imap:Starting Authentication");
+   ACE_DEBUG((LM_INFO, "Imap:Starting Authentication\n"));
    sprintf(buff, ". login %s %s \r\n", m_uname.c_str(), m_pass.c_str());
    if (m_socket->send(buff) != Email_no_error || m_socket->receive (buff) != Email_no_error)
       status = Email_general_connection_error ;
@@ -51,7 +52,7 @@ EmailError  Imap::getNumOfNewMsgs(int* r_newMsgs)
 {
    EmailError status = Email_no_error;
    char buff[IMAP_RESPONSE_MAX_LEM] = {0};
-   qDebug("Imap:Checking the account status");
+   ACE_DEBUG((LM_INFO, "Imap:Checking the account status\n"));
    if (r_newMsgs == NULL)
    {
       status = Email_invalid_input;
@@ -63,7 +64,7 @@ EmailError  Imap::getNumOfNewMsgs(int* r_newMsgs)
       {
          sscanf (buff, "* STATUS \"INBOX\" (UNSEEN %d)", r_newMsgs);
          //TODO: Check msg
-         qDebug ("Imap: got %d new messages", *r_newMsgs);
+         ACE_DEBUG((LM_INFO, "Imap: got %d new messages\n", *r_newMsgs));
       }
    }
    return status;
@@ -71,7 +72,7 @@ EmailError  Imap::getNumOfNewMsgs(int* r_newMsgs)
 void Imap::logout()
 {
    char buff[IMAP_RESPONSE_MAX_LEM] = {0};
-   qDebug ("Imap:Loging out");
+   ACE_DEBUG((LM_INFO, "Imap:Loging out\n"));
    sprintf(buff, ". logout" /*getSetIdentifyer()*/);
    m_socket->send(buff);
 }

@@ -23,6 +23,7 @@
 #include "Socket.h"
 #include <string.h>
 #include <sstream>
+#include <ace/Log_Msg.h>
 
 
 /* Some values from RFC1939 (Pop3)*/
@@ -35,7 +36,7 @@
 Pop3::Pop3(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, int updateInterval, emailNotifiableIntf* i_handler) : 
                emailAccount(in_server_address, in_port, in_uname, in_pass, in_ssl, updateInterval, i_handler)
 {
-   qDebug ("Pop3:Creating account for: %s @ %s", in_uname, in_server_address);
+   ACE_DEBUG((LM_INFO, "Pop3:Creating account for: %s@%s\n", in_uname, in_server_address));
 }
 Pop3::~Pop3 ()
 { }
@@ -46,7 +47,7 @@ EmailError Pop3::authenticate ()
    EmailError  status                  = Email_no_error;
    char        buff[POP3_RESPONSE_MAX_LEM]  = {0};
 
-   qDebug ("Pop3:Starting Authentication");
+   ACE_DEBUG((LM_INFO, "Pop3:Starting Authentication\n"));
    sprintf(buff, "USER %s\r\n", m_uname.c_str());
    if (m_socket->send(buff) != Email_no_error || m_socket->receive (buff) != Email_no_error)
       status = Email_general_connection_error ;
@@ -67,7 +68,7 @@ EmailError Pop3::getNumOfNewMsgs (int* r_newMsgs)
 {
    EmailError status = Email_no_error;
    char buff[POP3_RESPONSE_MAX_LEM] = {0};
-   qDebug("Pop3:Checking the account status");
+   ACE_DEBUG((LM_INFO, "Pop3:Checking the account status\n"));
    if (r_newMsgs == NULL)
    {
       status = Email_invalid_input;
@@ -79,7 +80,7 @@ EmailError Pop3::getNumOfNewMsgs (int* r_newMsgs)
       if (status == Email_no_error )
       {
          sscanf (buff, "+OK %d", r_newMsgs);
-         qDebug ("Pop3: got %d new messages", *r_newMsgs);
+         ACE_DEBUG((LM_INFO, "Pop3: got %d new messages\n", *r_newMsgs));
       }
    }
    return status;
@@ -87,7 +88,7 @@ EmailError Pop3::getNumOfNewMsgs (int* r_newMsgs)
 
 void Pop3::logout ()
 {
-   qDebug ("Pop3:Loging out");
+   ACE_DEBUG((LM_INFO, "Pop3:Loging out\n"));
    m_socket->send("QUIT\r\n");
 }
 EmailError Pop3::check_response(char* in_buff, EmailError in_err_msg) const

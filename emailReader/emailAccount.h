@@ -23,7 +23,6 @@
 #define EMAIL_ACCOUNT
 
 #include <string>
-#include <QThread>
 
 #include "error.h"
 #include "emailNotifier.h"
@@ -31,8 +30,11 @@
 class Socket;
 using namespace std;
 
-class emailAccount : public QThread
+void* startChechingAccount (void* account);
+
+class emailAccount
 {
+friend void* startChechingAccount(void*);
    protected:
       string       m_server_address;
       int          m_port;
@@ -57,7 +59,6 @@ class emailAccount : public QThread
       virtual ~emailAccount() = 0;
       virtual void checkAccount();
    void accountUpdated(int newMsgs);
-   void run();
 
 };
 

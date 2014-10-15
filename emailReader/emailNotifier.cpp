@@ -23,24 +23,29 @@
 #include "Imap.h"
 #include "emailNotifier.h"
 #include "error.h"
+#include <pthread.h>
+#include <ace/Log_Msg.h>
 
 accountHndl emailNotifier::registerAccount( AccountSettings accountSettings, emailNotifiableIntf* handler )
 {
-   qDebug("EmailNotify:Reading config");
+   ACE_DEBUG((LM_INFO, "EmailNotify:Reading config\n"));
    EmailError status = Email_no_error;
 
    emailAccount* newAccount = createAccount(accountSettings, handler);
 
    if (newAccount == NULL)
    {
-     qDebug("EmailNotify:Error loading config");
+     ACE_DEBUG((LM_ERROR, "EmailNotify:Error loading config\n"));
      status = Email_invalid_config_file;
    }
 
    if (status != Email_no_error)
         handler->onUpdateError(status);
    else
-    newAccount->start();
+   { 
+    pthread_t workerTreag;
+    pthread_create(&workerTreag, NULL, startChechingAccount, newAccount);
+   }
 
   return newAccount;
 }
@@ -54,7 +59,7 @@ emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotif
   {
     case AT_POP3:
       {
-        qDebug("enailnotify:creating pop3 account");
+        ACE_DEBUG((LM_INFO, "enailnotify:creating pop3 account\n"));
         newAccount = new Pop3(settings.host.c_str(),
             settings.port,
             settings.login.c_str(),
@@ -66,7 +71,7 @@ emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotif
       }
     case AT_IMAP:
       {
-        qDebug("EnailNotify:Creating Imap account");
+        ACE_DEBUG((LM_INFO, "EnailNotify:Creating Imap account\n"));
         newAccount = new Imap(settings.host.c_str(),
             settings.port,
             settings.login.c_str(),
@@ -78,7 +83,7 @@ emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotif
       }
     case AT_HOTMAIL:
       {
-        qDebug("EnailNotify:Creating Hotmail account");
+        ACE_DEBUG((LM_INFO, "EnailNotify:Creating Hotmail account\n"));
         newAccount = new Hotmail( settings.login.c_str(),
             settings.pass.c_str() ,
             settings.updateInterval,
@@ -87,7 +92,7 @@ emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotif
       }
     case AT_GMAIL:
       {
-        qDebug("EnailNotify:Creating Gmail account");
+        ACE_DEBUG((LM_INFO, "EnailNotify:Creating Gmail account\n"));
         newAccount = new Gmail( settings.login.c_str(),
             settings.pass.c_str() ,
             settings.updateInterval,
@@ -96,7 +101,7 @@ emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotif
       } 
     case AT_YAHOO:
       {
-        qDebug("EnailNotify:Creating Yahoo account");
+        ACE_DEBUG((LM_INFO, "EnailNotify:Creating Yahoo account\n"));
         newAccount = new Yahoo( settings.login.c_str(),
             settings.pass.c_str(),
             settings.updateInterval,
@@ -105,7 +110,7 @@ emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotif
       } 
     default:
       {
-        qDebug("EnailNotify:Unknown account type");
+        ACE_DEBUG((LM_INFO, "EnailNotify:Unknown account type\n"));
         newAccount = NULL;
         break;
       }
