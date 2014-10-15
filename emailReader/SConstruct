@@ -1,0 +1,4 @@
+env = Environment()
+includeFlags = " -I/usr/include/qt4/QtCore -I/usr/include/qt4 "
+env.MergeFlags(includeFlags)
+env.StaticLibrary("emailReader", Glob("*.cpp"))

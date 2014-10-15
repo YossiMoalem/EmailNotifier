@@ -3,6 +3,8 @@
 *.o
 *.so
 a.out
+*.a
+*.so
 
 #   Temp files    #
 ###################
@@ -13,3 +15,7 @@ a.out
 #   QT generated  #
 ###################
 moc_*.cpp
+
+#     SCons     #
+#################
+.sconsign.dblite
