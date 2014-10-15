@@ -33,10 +33,10 @@
 class SocketImplIntf
 {
  public:
-   virtual int connect  ()=0;
-   virtual int send     ( const char* i_msg)=0;
-   virtual int recv     (char out_msg_buff[])const=0;
-   virtual int close    ();
+   virtual int connect  () = 0;
+   virtual int send     ( const char* i_msg) = 0;
+   virtual int recv     (char out_msg_buff[])const = 0;
+   virtual int close    () = 0;
 };
 
 template <typename SOCK_STREAM, typename CONNECTOR>
