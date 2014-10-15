@@ -54,11 +54,7 @@ emailAccount::emailAccount (const char* in_server_address, int in_port, const ch
 
    if (in_pass)
       m_pass = in_pass;
-   std::ostringstream sout;
-   std::string portStr;
-   sout << m_port;
-   portStr = sout.str();
-   m_socket = new Socket(m_server_address.c_str(), portStr.c_str(), m_ssl);
+   m_socket = new Socket(m_server_address.c_str(), m_port, m_ssl);
 }
 
 emailAccount::~emailAccount()
@@ -68,8 +64,8 @@ emailAccount::~emailAccount()
 
 EmailError emailAccount::connect ()
 {
-   ACE_DEBUG((LM_INFO, "EmailAccount:Connecting to server (%s)\n", m_server_address.c_str()));
    EmailError status = Email_no_error;
+   ACE_DEBUG((LM_INFO, "EmailAccount:Connecting to server (%s:%d)\n", m_server_address.c_str(), m_port));
    char buff[RESPONSE_MAX_LEM] = {0};
    /* Connect to Server */
    if (m_socket->connect() != Email_no_error)

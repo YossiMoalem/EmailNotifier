@@ -5,7 +5,7 @@
 TEMPLATE = app
 TARGET = emailNotifier
 DEPENDPATH += . ../Ui ../emailReader
-unix: LIBS += -L../emailReader -lemailReader -lACE
+unix: LIBS += -L../emailReader -lemailReader -lACE -lACE_SSL
 INCLUDEPATH += ../emailReader
 QMAKE_CXXFLAGS += -pedantic -Wall -Wextra -Wno-long-long
 

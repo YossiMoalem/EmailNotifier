@@ -37,7 +37,7 @@ class emailAccount
 friend void* startChechingAccount(void*);
    protected:
       string       m_server_address;
-      int          m_port;
+      unsigned short m_port;
       string       m_uname;
       string       m_pass;
       bool         m_ssl;

@@ -22,36 +22,24 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include <string>
-#include <openssl/ssl.h>
 #include "error.h"
 
+class SocketImplIntf;
 
-using namespace std;
-
-class Socket
+class Socket 
 {
-   private:
-   string      m_address;
-   string      m_port;
-   bool        m_ssl;
-   int         m_socfd;
-   SSL_CTX*    m_ctx;
-   SSL*        m_sslfd;
-   struct addrinfo*  m_srv_addr_info;
-   static bool s_sslLoaded;
 
-   EmailError    resolveHost();
-   EmailError    setSsl();
-
-   public:
-   Socket (const char* in_address, const char* in_port, bool ssl); 
+ public:
+   Socket (const char* in_address, unsigned short portNum, bool ssl); 
    ~Socket();
 
    EmailError  connect           ();
-   int         send              (const char* in_msg)const ;
+   EmailError  send              (const char* in_msg)const ;
    EmailError  receive           (char out_msg_buff[])const ;
    EmailError  close             ();
+
+ private:
+   SocketImplIntf*      m_socketImpl;
 };
 
 #endif
