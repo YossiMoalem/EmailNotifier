@@ -22,23 +22,39 @@
 #ifndef SOCKET_IMPL_H
 #define SOCKET_IMPL_H
 
+#include <string>
+
 #include <ace/INET_Addr.h>
 #include <ace/SOCK_Stream.h>
 #include <ace/SOCK_Connector.h>
 #include <ace/Log_Msg.h>
 #include <ace/SSL/SSL_SOCK_Stream.h>
 #include <ace/SSL/SSL_SOCK_Connector.h>
-#define BUFF_SIZE     512
 
+/********************************************************\
+ *                      Interface
+\ ********************************************************/
 class SocketImplIntf
 {
  public:
-   virtual int connect  () = 0;
-   virtual int send     ( const char* i_msg) = 0;
-   virtual int recv     (char out_msg_buff[])const = 0;
-   virtual int close    () = 0;
+  SocketImplIntf() : m_connectionTimeout(5) ,
+                      m_sendTimeout(2),
+                      m_recvTimeout(2)
+  {}
+   virtual EmailError  connect  () = 0;
+   virtual EmailError  send     ( const char* i_msg) = 0;
+   virtual EmailError  recv     (std::string& o_msg)const = 0;
+   virtual EmailError  close    () = 0;
+
+   protected:
+   unsigned int m_connectionTimeout;
+   unsigned int m_sendTimeout;
+   unsigned int m_recvTimeout;
 };
 
+/********************************************************\
+ *                      Declerations
+\ ********************************************************/
 template <typename SOCK_STREAM, typename CONNECTOR>
 class SocketImpl : public SocketImplIntf
 {
@@ -46,51 +62,98 @@ class SocketImpl : public SocketImplIntf
    SocketImpl(const char* in_address, unsigned short portNum) :
                         m_server(portNum, in_address)
    {}
-   virtual int connect  ();
-   virtual int send     ( const char* i_msg);
-   virtual int recv     (char out_msg_buff[])const;
-   virtual int close    ();
+   virtual EmailError connect  ();
+   virtual EmailError send     ( const char* i_msg);
+   virtual EmailError recv     (std::string& o_msg) const;
+   virtual EmailError close    ();
 
    protected:
    ACE_INET_Addr        m_server;
    SOCK_STREAM          m_server_stream;
+
+   private:
+   EmailError handleError(const char* opperation) const;
 };
 
+/********************************************************/
 typedef SocketImpl<ACE_SOCK_Stream, ACE_SOCK_Connector> RegularSocketImpl;
 typedef SocketImpl<ACE_SSL_SOCK_Stream, ACE_SSL_SOCK_Connector> SslSocketImpl;
 
+
+/********************************************************\
+ *                      Implementations
+\ ********************************************************/
 template <typename SOCK_STREAM, typename CONNECTOR>
-inline int SocketImpl<SOCK_STREAM, CONNECTOR>::recv(char out_msg[])const 
+inline EmailError SocketImpl<SOCK_STREAM, CONNECTOR>::connect()
 {
-  if (out_msg == NULL)
+  ACE_OS::last_error(0);
+  ACE_Time_Value connectionTimeout(m_connectionTimeout);
+  CONNECTOR connector;
+  int status = connector.connect(m_server_stream, m_server, &connectionTimeout);
+  if (status != 0)
   {
-    return -1;
-  } else {
-    m_server_stream.recv(out_msg, BUFF_SIZE);
-    ACE_DEBUG((LM_INFO, "Recieved %s\n", out_msg));
+    return handleError("connecting");
   }
-  return 0;
+  return Email_no_error;
 }
 
+/********************************************************/
 template <typename SOCK_STREAM, typename CONNECTOR>
-inline int SocketImpl<SOCK_STREAM, CONNECTOR>::send( const char* i_msg)
+inline EmailError SocketImpl<SOCK_STREAM, CONNECTOR>::recv(std::string& o_msg)const 
 {
+  ACE_OS::last_error(0);
+  ACE_Time_Value recvTimeout(m_recvTimeout);
+  EmailError status = Email_no_error;
+  //TODO: DELETE ME!!
+  iovec response;
+  int recvStatus = m_server_stream.recvv(&response, &recvTimeout);
+  if (recvStatus < 0)
+  {
+    status = handleError("recieving");
+  } else {
+    o_msg = reinterpret_cast<char*>( response.iov_base );
+    ACE_DEBUG((LM_INFO, "Recieved %s\n", o_msg.c_str()));
+  }
+  delete [] (reinterpret_cast<char*> (response.iov_base));
+  return status;
+}
+
+/********************************************************/
+template <typename SOCK_STREAM, typename CONNECTOR>
+inline EmailError SocketImpl<SOCK_STREAM, CONNECTOR>::send( const char* i_msg)
+{
+  ACE_OS::last_error(0);
+  ACE_Time_Value sendTimeout(m_sendTimeout);
   int len = strlen (i_msg);
   ACE_DEBUG((LM_INFO, "Going to send %s \n", i_msg));
-  m_server_stream.send_n(i_msg, len);
-  return 0;
+  int status = m_server_stream.send_n(i_msg, len, &sendTimeout);
+  if (status < 0)
+  {
+    return handleError("sending");
+  } 
+  return Email_no_error;
 }
 
+/********************************************************/
 template <typename SOCK_STREAM, typename CONNECTOR>
-inline int SocketImpl<SOCK_STREAM, CONNECTOR>::connect()
-{
-  CONNECTOR connector;
-  return connector.connect(m_server_stream, m_server);
-}
-
-template <typename SOCK_STREAM, typename CONNECTOR>
-inline int SocketImpl<SOCK_STREAM, CONNECTOR>::close()
+inline EmailError SocketImpl<SOCK_STREAM, CONNECTOR>::close()
 {
   m_server_stream.close();
+  return Email_no_error;
+}
+
+/********************************************************/
+template <typename SOCK_STREAM, typename CONNECTOR>
+inline EmailError SocketImpl<SOCK_STREAM, CONNECTOR>::handleError(const char* opperation) const
+{
+    int lastError = ACE_OS::last_error();
+    if (lastError == ETIME)
+    {
+      ACE_DEBUG((LM_WARNING, "SocketImpl: Time out while %s\n", opperation));
+      return Email_time_out;
+    } else {
+      ACE_DEBUG((LM_ERROR, "SocketImpl: Error %s. Last error = %d\n", opperation, lastError));
+      return Email_connection_failed;
+    }
 }
 #endif

@@ -52,6 +52,9 @@ const char* EmailErrorToStr (EmailError error)
       case Email_cannot_init_ssl:
          str = (char*)"Cannot initialize SSL connection";
          break;
+      case Email_time_out:
+        str=(char*)"Opperation timed out";
+        break;
       case Email_invalid_input:
          str = (char*)"General Error (invalid input)";
          break;

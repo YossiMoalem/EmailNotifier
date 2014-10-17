@@ -42,6 +42,7 @@ enum EmailError
    Email_connection_closed             = -107,
    Email_recive_error                  = -108,
    Email_no_connection                 = -109,
+   Email_time_out          = -110,
    /* Config Errors */
    Email_missing_config_file           = -201,
    Email_invalid_config_file           = -202,

@@ -38,13 +38,14 @@ Imap::~Imap() {}
 EmailError  Imap::authenticate() 
 {
    char buff[IMAP_RESPONSE_MAX_LEM] = {0};
+   std::string answer;
    EmailError status = Email_no_error;
    ACE_DEBUG((LM_INFO, "Imap:Starting Authentication\n"));
    sprintf(buff, ". login %s %s \r\n", m_uname.c_str(), m_pass.c_str());
-   if (m_socket->send(buff) != Email_no_error || m_socket->receive (buff) != Email_no_error)
+   if (m_socket->send(buff) != Email_no_error || m_socket->receive (answer) != Email_no_error)
       status = Email_general_connection_error ;
    else 
-      status = check_response(buff, Email_authentication_error);
+      status = check_response(answer, Email_authentication_error);
    return status;
 }
 
@@ -52,17 +53,19 @@ EmailError  Imap::getNumOfNewMsgs(int* r_newMsgs)
 {
    EmailError status = Email_no_error;
    char buff[IMAP_RESPONSE_MAX_LEM] = {0};
+   std::string answer;
    ACE_DEBUG((LM_INFO, "Imap:Checking the account status\n"));
    if (r_newMsgs == NULL)
    {
       status = Email_invalid_input;
-   } else if (m_socket->send(". status INBOX (unseen)\r\n") != Email_no_error ||m_socket->receive (buff) != Email_no_error)
+   } else if (m_socket->send(". status INBOX (unseen)\r\n") != Email_no_error ||m_socket->receive (answer) != Email_no_error)
       status = Email_general_connection_error;
    else
    {
       if (status == Email_no_error )
       {
-         sscanf (buff, "* STATUS \"INBOX\" (UNSEEN %d)", r_newMsgs);
+        const char* answerStr = answer.c_str();
+         sscanf (answerStr, "* STATUS \"INBOX\" (UNSEEN %d)", r_newMsgs);
          //TODO: Check msg
          ACE_DEBUG((LM_INFO, "Imap: got %d new messages\n", *r_newMsgs));
       }
@@ -77,12 +80,12 @@ void Imap::logout()
    m_socket->send(buff);
 }
 
-EmailError Imap::check_response(char* in_buff, EmailError in_err_msg) const
+EmailError Imap::check_response(const std::string& response, EmailError in_err_msg) const
 {
    EmailError status = Email_no_error;
-   if (strstr (in_buff, ERR) )
+   if (response.find(ERR) != string::npos)
       status = in_err_msg;
-   else if (strstr(in_buff, OK) == NULL)
+   else if (response.find(OK) == string::npos)
       status = Email_connection_invalid_response;
 
    return status;
@@ -92,7 +95,8 @@ EmailError Imap::check_response(char* in_buff, EmailError in_err_msg) const
  *                      Gmail
 \ ********************************************************/
 
-Gmail::Gmail(const char* in_uname, const char* in_pass, int updateInterval, emailNotifiableIntf* i_handler) : Imap("imap.gmail.com", 993, in_uname, in_pass, true, updateInterval, i_handler) 
+//Gmail::Gmail(const char* in_uname, const char* in_pass, int updateInterval, emailNotifiableIntf* i_handler) : Imap("imap.gmail.com", 993, in_uname, in_pass, true, updateInterval, i_handler) 
+Gmail::Gmail(const char* in_uname, const char* in_pass, int updateInterval, emailNotifiableIntf* i_handler) : Imap("74.125.136.108", 993, in_uname, in_pass, true, updateInterval, i_handler) 
 {
    m_uname += "@gmail.com";
 }

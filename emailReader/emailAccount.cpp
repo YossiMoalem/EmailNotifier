@@ -66,7 +66,7 @@ EmailError emailAccount::connect ()
 {
    EmailError status = Email_no_error;
    ACE_DEBUG((LM_INFO, "EmailAccount:Connecting to server (%s:%d)\n", m_server_address.c_str(), m_port));
-   char buff[RESPONSE_MAX_LEM] = {0};
+   std::string answer;
    /* Connect to Server */
    if (m_socket->connect() != Email_no_error)
    {
@@ -75,10 +75,10 @@ EmailError emailAccount::connect ()
    }
    if (status == Email_no_error )
    { 
-      if (m_socket->receive (buff) != Email_no_error)
+      if (m_socket->receive (answer) != Email_no_error)
          status = Email_connection_failed;
       else
-         status = check_response(buff, Email_connection_failed);
+         status = check_response(answer, Email_connection_failed);
    }
    return status;
 }

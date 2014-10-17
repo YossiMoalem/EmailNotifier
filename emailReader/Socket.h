@@ -22,6 +22,8 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include <string> 
+
 #include "error.h"
 
 class SocketImplIntf;
@@ -34,8 +36,8 @@ class Socket
    ~Socket();
 
    EmailError  connect           ();
-   EmailError  send              (const char* in_msg)const ;
-   EmailError  receive           (char out_msg_buff[])const ;
+   EmailError  send              (const char* in_msg) const ;
+   EmailError  receive           (std::string& o_msg) const ;
    EmailError  close             ();
 
  private:

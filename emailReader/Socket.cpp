@@ -43,9 +43,9 @@ EmailError Socket::connect ()
 {
   EmailError status = Email_no_error; 
 
-  if (-1 == m_socketImpl->connect() )
+  if (Email_no_error != m_socketImpl->connect() )
   {
-    ACE_DEBUG((LM_ERROR, "Socket: Failed to connect errno = %d\n", errno));
+    ACE_DEBUG((LM_ERROR, "Socket: Failed to connect \n"));
     status = Email_connection_failed;
   } else {
     ACE_DEBUG((LM_INFO, "Socket: Conected!"));
@@ -59,11 +59,9 @@ EmailError Socket::send (const char* in_msg)const
    return Email_no_error;
 }
 
-EmailError Socket::receive (char out_msg[])const 
+EmailError Socket::receive (std::string& o_msg) const 
 {
-   int status = m_socketImpl->recv(out_msg);
-
-   return (status == 0 ) ? Email_no_error : Email_recive_error ; 
+   return m_socketImpl->recv(o_msg);
 }
 EmailError Socket::close()
 {

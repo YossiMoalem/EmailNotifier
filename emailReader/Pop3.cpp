@@ -46,20 +46,21 @@ EmailError Pop3::authenticate ()
 {
    EmailError  status                  = Email_no_error;
    char        buff[POP3_RESPONSE_MAX_LEM]  = {0};
+   std::string answer;
 
    ACE_DEBUG((LM_INFO, "Pop3:Starting Authentication\n"));
    sprintf(buff, "USER %s\r\n", m_uname.c_str());
-   if (m_socket->send(buff) != Email_no_error || m_socket->receive (buff) != Email_no_error)
+   if (m_socket->send(buff) != Email_no_error || m_socket->receive (answer) != Email_no_error)
       status = Email_general_connection_error ;
    else 
-      status = check_response(buff, Email_authentication_error);
+      status = check_response(answer, Email_authentication_error);
    if (status == Email_no_error)
    {
       sprintf(buff, "PASS %s\r\n", m_pass.c_str());
-      if (m_socket->send(buff) != Email_no_error || m_socket->receive (buff) != Email_no_error)
+      if (m_socket->send(buff) != Email_no_error || m_socket->receive (answer) != Email_no_error)
          status = Email_general_connection_error;
       else 
-         status = check_response(buff, Email_authentication_error);
+         status = check_response(answer, Email_authentication_error);
    }
    return status;
 }
@@ -68,15 +69,16 @@ EmailError Pop3::getNumOfNewMsgs (int* r_newMsgs)
 {
    EmailError status = Email_no_error;
    char buff[POP3_RESPONSE_MAX_LEM] = {0};
+   std::string answer;
    ACE_DEBUG((LM_INFO, "Pop3:Checking the account status\n"));
    if (r_newMsgs == NULL)
    {
       status = Email_invalid_input;
-   } else if (m_socket->send("STAT\r\n") != Email_no_error ||m_socket->receive (buff) != Email_no_error)
+   } else if (m_socket->send("STAT\r\n") != Email_no_error ||m_socket->receive (answer) != Email_no_error)
       status = Email_general_connection_error;
    else
    {
-      status = check_response(buff, Email_connection_invalid_response);
+      status = check_response(answer, Email_connection_invalid_response);
       if (status == Email_no_error )
       {
          sscanf (buff, "+OK %d", r_newMsgs);
@@ -91,18 +93,18 @@ void Pop3::logout ()
    ACE_DEBUG((LM_INFO, "Pop3:Loging out\n"));
    m_socket->send("QUIT\r\n");
 }
-EmailError Pop3::check_response(char* in_buff, EmailError in_err_msg) const
+
+EmailError Pop3::check_response(const std::string& response, EmailError in_err_msg) const
 {
-   *(strchr(in_buff, '\n')) = '\0';
-   *(strchr(in_buff, '\r')) = '\0';
    EmailError status = Email_no_error;
-   if (strstr (in_buff, ERR) == in_buff)
+   if (response.find(ERR) != 0 )
       status = in_err_msg;
-   else if (strstr(in_buff, OK) != in_buff)
+   else if (response.find(OK) == 0 )
       status = Email_connection_invalid_response;
 
    return status;
 }
+
 /********************************************************\
  *                Hotmail
 \ ********************************************************/

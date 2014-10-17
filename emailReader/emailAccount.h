@@ -51,7 +51,7 @@ friend void* startChechingAccount(void*);
       virtual EmailError  authenticate() = 0;
       virtual EmailError  getNumOfNewMsgs(int* r_numOfNewMsgs) = 0;
       virtual void        logout() = 0;
-      virtual EmailError check_response (char* in_buff, EmailError in_error_msg) const = 0;
+      virtual EmailError check_response (const std::string& response, EmailError in_error_msg) const = 0;
 
    public:
       emailAccount (const char* in_server_address, int in_port, const char* in_uname,

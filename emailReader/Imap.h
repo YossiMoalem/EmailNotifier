@@ -22,6 +22,8 @@
 #ifndef IMAP 
 #define IMAP
 
+#include <string>
+
 #include "emailAccount.h"
 
 class Imap : public emailAccount
@@ -30,7 +32,7 @@ class Imap : public emailAccount
       virtual EmailError  authenticate();
       virtual EmailError  getNumOfNewMsgs(int* r_numOfNewMsgs);
       virtual void        logout();
-      virtual EmailError check_response (char* in_buff, EmailError in_error_msg) const;
+      virtual EmailError check_response (const std::string& response, EmailError in_error_msg) const;
 
    public:
    Imap(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, int updateInterval, emailNotifiableIntf* i_handler);
