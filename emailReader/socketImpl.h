@@ -1,7 +1,7 @@
 /*
- * Email Notify Version: 0.1
- * Author: Yossi Mualem
- * Email :  ymgetm@gmail.com
+ * Email Notify Version: 0.2
+ * Author: Yossi Moalem
+ * Email :  moalem.yossi@gmail.com
  * 
  *
  * This library is free software; you can redistribute it and/or
@@ -31,6 +31,8 @@
 #include <ace/SSL/SSL_SOCK_Stream.h>
 #include <ace/SSL/SSL_SOCK_Connector.h>
 
+#define NL "\r\n"
+
 /********************************************************\
  *                      Interface
 \ ********************************************************/
@@ -42,8 +44,8 @@ class SocketImplIntf
                       m_recvTimeout(2)
   {}
    virtual EmailError  connect  () = 0;
-   virtual EmailError  send     ( const char* i_msg) = 0;
-   virtual EmailError  recv     (std::string& o_msg)const = 0;
+   virtual EmailError  send     ( const char* i_msg ) = 0;
+   virtual EmailError  recv     ( std::string& o_msg ) const = 0;
    virtual EmailError  close    () = 0;
 
    protected:
@@ -59,8 +61,8 @@ template <typename SOCK_STREAM, typename CONNECTOR>
 class SocketImpl : public SocketImplIntf
 {
  public:
-   SocketImpl(const char* in_address, unsigned short portNum) :
-                        m_server(portNum, in_address)
+   SocketImpl(const std::string& i_address, unsigned short portNum) :
+                        m_server(portNum, i_address.c_str())
    {}
    virtual EmailError connect  ();
    virtual EmailError send     ( const char* i_msg);
@@ -104,7 +106,6 @@ inline EmailError SocketImpl<SOCK_STREAM, CONNECTOR>::recv(std::string& o_msg)co
   ACE_OS::last_error(0);
   ACE_Time_Value recvTimeout(m_recvTimeout);
   EmailError status = Email_no_error;
-  //TODO: DELETE ME!!
   iovec response;
   int recvStatus = m_server_stream.recvv(&response, &recvTimeout);
   if (recvStatus < 0)
@@ -124,9 +125,12 @@ inline EmailError SocketImpl<SOCK_STREAM, CONNECTOR>::send( const char* i_msg)
 {
   ACE_OS::last_error(0);
   ACE_Time_Value sendTimeout(m_sendTimeout);
-  int len = strlen (i_msg);
-  ACE_DEBUG((LM_INFO, "Going to send %s \n", i_msg));
-  int status = m_server_stream.send_n(i_msg, len, &sendTimeout);
+  unsigned int commandLength = strlen(i_msg) + strlen(NL);
+  char command[commandLength + 1];
+  strcpy(command, i_msg);
+  strcat(command, NL);
+  ACE_DEBUG((LM_INFO, "Going to send |%s|\n", command));
+  int status = m_server_stream.send_n(command, commandLength, &sendTimeout);
   if (status < 0)
   {
     return handleError("sending");
@@ -156,4 +160,5 @@ inline EmailError SocketImpl<SOCK_STREAM, CONNECTOR>::handleError(const char* op
       return Email_connection_failed;
     }
 }
+#undef NL
 #endif

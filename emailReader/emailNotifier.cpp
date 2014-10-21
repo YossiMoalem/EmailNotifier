@@ -1,7 +1,7 @@
 /*
- * Email Notify Version: 0.1
- * Author: Yossi Mualem
- * Email :  ymgetm@gmail.com
+ * Email Notify Version: 0.2
+ * Author: Yossi Moalem
+ * Email :  moalem.yossi@gmail.com
  * 
  *
  * This library is free software; you can redistribute it and/or
@@ -19,51 +19,41 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Pop3.h"
-#include "Imap.h"
-#include "emailNotifier.h"
-#include "error.h"
 #include <pthread.h>
 #include <ace/Log_Msg.h>
 
-accountHndl emailNotifier::registerAccount( AccountSettings accountSettings, emailNotifiableIntf* handler )
-{
-   ACE_DEBUG((LM_INFO, "EmailNotify:Reading config\n"));
-   EmailError status = Email_no_error;
+#include "error.h"
+#include "emailNotifier.h"
+#include "Pop3.h"
+#include "Imap.h"
 
-   emailAccount* newAccount = createAccount(accountSettings, handler);
+accountHndl EmailNotifier::registerAccount( const AccountSettings &  accountSettings, EmailNotifiableIntf* handler ) const
+{
+   EmailAccount* newAccount = createAccount(accountSettings, handler);
 
    if (newAccount == NULL)
    {
-     ACE_DEBUG((LM_ERROR, "EmailNotify:Error loading config\n"));
-     status = Email_invalid_config_file;
-   }
-
-   if (status != Email_no_error)
-        handler->onUpdateError(status);
-   else
-   { 
+       ACE_DEBUG((LM_ERROR, "EmailNotify:Error creating acount \n"));
+       handler->onUpdateError(Email_invalid_config_file); //TODO: replace error
+   } else { 
     pthread_t workerTreag;
     pthread_create(&workerTreag, NULL, startChechingAccount, newAccount);
    }
-
   return newAccount;
 }
 
-emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotifiableIntf* i_handler)
+EmailAccount* EmailNotifier::createAccount(const AccountSettings& settings, EmailNotifiableIntf* i_handler) const
 {
-  emailAccount* newAccount = NULL;
-
-
+  EmailAccount* newAccount = NULL;
   switch (settings.type)
   {
     case AT_POP3:
       {
         ACE_DEBUG((LM_INFO, "enailnotify:creating pop3 account\n"));
-        newAccount = new Pop3(settings.host.c_str(),
+        newAccount = new Pop3(settings.host,
             settings.port,
-            settings.login.c_str(),
-            settings.pass.c_str(),
+            settings.login,
+            settings.pass,
             settings.ssl,
             settings.updateInterval,
             i_handler); 
@@ -72,10 +62,10 @@ emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotif
     case AT_IMAP:
       {
         ACE_DEBUG((LM_INFO, "EnailNotify:Creating Imap account\n"));
-        newAccount = new Imap(settings.host.c_str(),
+        newAccount = new Imap(settings.host,
             settings.port,
-            settings.login.c_str(),
-            settings.pass.c_str(),
+            settings.login,
+            settings.pass,
             settings.ssl,
             settings.updateInterval,
             i_handler); 
@@ -84,8 +74,8 @@ emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotif
     case AT_HOTMAIL:
       {
         ACE_DEBUG((LM_INFO, "EnailNotify:Creating Hotmail account\n"));
-        newAccount = new Hotmail( settings.login.c_str(),
-            settings.pass.c_str() ,
+        newAccount = new Hotmail( settings.login,
+            settings.pass ,
             settings.updateInterval,
             i_handler); 
         break;
@@ -93,8 +83,8 @@ emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotif
     case AT_GMAIL:
       {
         ACE_DEBUG((LM_INFO, "EnailNotify:Creating Gmail account\n"));
-        newAccount = new Gmail( settings.login.c_str(),
-            settings.pass.c_str() ,
+        newAccount = new Gmail( settings.login,
+            settings.pass ,
             settings.updateInterval,
             i_handler); 
         break;
@@ -102,19 +92,18 @@ emailAccount* emailNotifier::createAccount(AccountSettings& settings, emailNotif
     case AT_YAHOO:
       {
         ACE_DEBUG((LM_INFO, "EnailNotify:Creating Yahoo account\n"));
-        newAccount = new Yahoo( settings.login.c_str(),
-            settings.pass.c_str(),
+        newAccount = new Yahoo( settings.login,
+            settings.pass,
             settings.updateInterval,
             i_handler ); 
         break;
       } 
     default:
       {
-        ACE_DEBUG((LM_INFO, "EnailNotify:Unknown account type\n"));
+        ACE_DEBUG((LM_ERROR, "EnailNotify:Unknown account type\n"));
         newAccount = NULL;
         break;
       }
   }
   return newAccount;
 }
-

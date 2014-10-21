@@ -1,7 +1,7 @@
 /*
- * Email Notify Version: 0.1
- * Author: Yossi Mualem
- * Email :  ymgetm@gmail.com
+ * Email Notify Version: 0.2
+ * Author: Yossi Moalem
+ * Email :  moalem.yossi@gmail.com
  * 
  *
  * This library is free software; you can redistribute it and/or
@@ -25,18 +25,29 @@
 #include <sstream>
 #include <ace/Log_Msg.h>
 
-
-/* Some values from RFC1939 (Pop3)*/
-#define ARG_MAX_LEN 40
+const char* Pop3::mUserCommand = "USER ";
+const char* Pop3::mPasswordCommand = "PASS ";
+const char* Pop3::mQuitCommand = "QUIT";
+const char* Pop3::mStatCommand = "STAT";
+/* Some values from RFC1939 */
 #define POP3_RESPONSE_MAX_LEM 512
-/* Response from Server */
-#define OK "+OK"
-#define ERR "-ERR"
 
-Pop3::Pop3(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, int updateInterval, emailNotifiableIntf* i_handler) : 
-               emailAccount(in_server_address, in_port, in_uname, in_pass, in_ssl, updateInterval, i_handler)
+Pop3::Pop3(const std::string& i_serverAddress, 
+            int port, 
+            const std::string& i_uname, 
+            const std::string& i_password, 
+            bool ssl, 
+            int updateInterval, 
+            EmailNotifiableIntf* i_handler) : 
+        EmailAccount(i_serverAddress, 
+                        port, 
+                        i_uname, 
+                        i_password, 
+                        ssl, 
+                        updateInterval, 
+                        i_handler)
 {
-   ACE_DEBUG((LM_INFO, "Pop3:Creating account for: %s@%s\n", in_uname, in_server_address));
+   ACE_DEBUG((LM_INFO, "Pop3:Creating account for: %s@%s\n", i_uname.c_str(), i_serverAddress.c_str()));
 }
 Pop3::~Pop3 ()
 { }
@@ -44,20 +55,18 @@ Pop3::~Pop3 ()
 
 EmailError Pop3::authenticate ()
 {
-   EmailError  status                  = Email_no_error;
-   char        buff[POP3_RESPONSE_MAX_LEM]  = {0};
+   EmailError  status = Email_no_error;
    std::string answer;
+   answer.reserve(POP3_RESPONSE_MAX_LEM);
 
    ACE_DEBUG((LM_INFO, "Pop3:Starting Authentication\n"));
-   sprintf(buff, "USER %s\r\n", m_uname.c_str());
-   if (m_socket->send(buff) != Email_no_error || m_socket->receive (answer) != Email_no_error)
+   if (m_socket->send(mUserCommand + m_uname ) != Email_no_error || m_socket->receive (answer) != Email_no_error)
       status = Email_general_connection_error ;
    else 
       status = check_response(answer, Email_authentication_error);
    if (status == Email_no_error)
    {
-      sprintf(buff, "PASS %s\r\n", m_pass.c_str());
-      if (m_socket->send(buff) != Email_no_error || m_socket->receive (answer) != Email_no_error)
+      if (m_socket->send(mPasswordCommand + m_pass ) != Email_no_error || m_socket->receive (answer) != Email_no_error)
          status = Email_general_connection_error;
       else 
          status = check_response(answer, Email_authentication_error);
@@ -65,24 +74,22 @@ EmailError Pop3::authenticate ()
    return status;
 }
 
-EmailError Pop3::getNumOfNewMsgs (int* r_newMsgs)
+EmailError Pop3::getNumOfNewMsgs (int& r_newMsgs)
 {
    EmailError status = Email_no_error;
-   char buff[POP3_RESPONSE_MAX_LEM] = {0};
    std::string answer;
+   answer.reserve(POP3_RESPONSE_MAX_LEM);
    ACE_DEBUG((LM_INFO, "Pop3:Checking the account status\n"));
-   if (r_newMsgs == NULL)
-   {
-      status = Email_invalid_input;
-   } else if (m_socket->send("STAT\r\n") != Email_no_error ||m_socket->receive (answer) != Email_no_error)
+   if (m_socket->send( mStatCommand ) != Email_no_error ||m_socket->receive (answer) != Email_no_error)
       status = Email_general_connection_error;
    else
    {
       status = check_response(answer, Email_connection_invalid_response);
       if (status == Email_no_error )
       {
-         sscanf (buff, "+OK %d", r_newMsgs);
-         ACE_DEBUG((LM_INFO, "Pop3: got %d new messages\n", *r_newMsgs));
+          const char* answerStr = answer.c_str();
+         sscanf (answerStr, "+OK %d", &r_newMsgs);
+         ACE_DEBUG((LM_INFO, "Pop3: got %d new messages\n", r_newMsgs));
       }
    }
    return status;
@@ -91,25 +98,28 @@ EmailError Pop3::getNumOfNewMsgs (int* r_newMsgs)
 void Pop3::logout ()
 {
    ACE_DEBUG((LM_INFO, "Pop3:Loging out\n"));
-   m_socket->send("QUIT\r\n");
+   m_socket->send(mQuitCommand);
 }
 
-EmailError Pop3::check_response(const std::string& response, EmailError in_err_msg) const
+const char* Pop3::okResponse() const
 {
-   EmailError status = Email_no_error;
-   if (response.find(ERR) != 0 )
-      status = in_err_msg;
-   else if (response.find(OK) == 0 )
-      status = Email_connection_invalid_response;
+  return "OK";
+}
 
-   return status;
+const char* Pop3::errResponse() const
+{
+  return "NO";
 }
 
 /********************************************************\
  *                Hotmail
 \ ********************************************************/
 
-Hotmail::Hotmail(const char* in_uname, const char* in_pass,int updateInterval,  emailNotifiableIntf* i_handler) : Pop3 ("pop3.live.com", 995, in_uname, in_pass, true, updateInterval, i_handler) 
+Hotmail::Hotmail(const std::string& i_uname, 
+                    const std::string& i_password,
+                    int updateInterval,  
+                    EmailNotifiableIntf* i_handler) 
+    : Pop3 ("pop3.live.com", 995, i_uname, i_password, true, updateInterval, i_handler) 
 {
    m_uname += "@hotmail.com";
 }
@@ -120,7 +130,11 @@ Hotmail::~Hotmail () {}
  *                     Yahoo 
 \ ********************************************************/
 
-Yahoo::Yahoo (const char* in_uname, const char* in_pass, int updateInterval, emailNotifiableIntf* i_handler) : Pop3("pop.mail.yahoo.com", 995, in_uname, in_pass, true, updateInterval, i_handler) 
+Yahoo::Yahoo (const std::string& i_uname, 
+                const std::string& i_password, 
+                int updateInterval, 
+                EmailNotifiableIntf* i_handler) : 
+        Pop3("pop.mail.yahoo.com", 995, i_uname, i_password, true, updateInterval, i_handler) 
 {
    m_uname += "@yahoo.com";
 }

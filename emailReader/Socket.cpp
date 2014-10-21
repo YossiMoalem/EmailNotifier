@@ -1,7 +1,7 @@
 /*
- * Email Notify Version: 0.1
- * Author: Yossi Mualem
- * Email :  ymgetm@gmail.com
+ * Email Notify Version: 0.2
+ * Author: Yossi Moalem
+ * Email :  moalem.yossi@gmail.com
  * 
  *
  * This library is free software; you can redistribute it and/or
@@ -23,13 +23,13 @@
 #include "socketImpl.h"
 #include <ace/Log_Msg.h>
 
-Socket::Socket (const char* in_address, unsigned short portNum, bool useSsl)
+Socket::Socket (const std::string& i_address, unsigned short portNum, bool useSsl)
 {
   if (useSsl)
   {
-    m_socketImpl = new SslSocketImpl(in_address, portNum);
+    m_socketImpl = new SslSocketImpl(i_address, portNum);
   } else {
-    m_socketImpl = new RegularSocketImpl(in_address, portNum);
+    m_socketImpl = new RegularSocketImpl(i_address, portNum);
   }
 
 }
@@ -53,9 +53,14 @@ EmailError Socket::connect ()
   return status;
 }
 
-EmailError Socket::send (const char* in_msg)const 
+EmailError Socket::send (const std::string& i_msg)const 
 {
-   m_socketImpl->send(in_msg);
+   return send(i_msg.c_str());
+}
+
+EmailError Socket::send (const char*  i_msg)const 
+{
+   m_socketImpl->send(i_msg);
    return Email_no_error;
 }
 

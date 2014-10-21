@@ -1,7 +1,7 @@
 /*
- * Email Notify Version: 0.1
- * Author: Yossi Mualem
- * Email :  ymgetm@gmail.com
+ * Email Notify Version: 0.2
+ * Author: Yossi Moalem
+ * Email :  moalem.yossi@gmail.com
  * 
  *
  * This library is free software; you can redistribute it and/or
@@ -26,23 +26,35 @@
 
 #include "emailAccount.h"
 
-class Imap : public emailAccount
+class Imap : public EmailAccount
 {
+   public:
+   Imap(const std::string& i_serverAddress, 
+        int port, 
+        const std::string& i_uname, 
+        const std::string& i_password, 
+        bool ssl, 
+        int updateInterval, 
+        EmailNotifiableIntf* i_handler);
+   ~Imap();
+   
    protected:
       virtual EmailError  authenticate();
-      virtual EmailError  getNumOfNewMsgs(int* r_numOfNewMsgs);
+      virtual EmailError  getNumOfNewMsgs(int& r_numOfNewMsgs);
       virtual void        logout();
-      virtual EmailError check_response (const std::string& response, EmailError in_error_msg) const;
+      virtual const char* okResponse() const ;
+      virtual const char* errResponse() const;
 
-   public:
-   Imap(const char* in_server_address, int in_port, const char* in_uname, const char* in_pass, bool in_ssl, int updateInterval, emailNotifiableIntf* i_handler);
-   ~Imap();
+    protected:
+    static const char* const mLoginCommand;
+    static const char* const mStatusCommand;
+    static const char* const mLogoutCommand;
 };
 
 class Gmail : public Imap
 {
    public:
-   Gmail (const char* in_uname, const char* in_pass, int updateInterval, emailNotifiableIntf* i_handler);
+   Gmail (const std::string& i_uname, const std::string& i_password, int updateInterval, EmailNotifiableIntf* i_handler);
    virtual ~Gmail ();
 };
 

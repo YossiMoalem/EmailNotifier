@@ -1,7 +1,7 @@
 /*
- * Email Notify Version: 0.1
- * Author: Yossi Mualem
- * Email :  ymgetm@gmail.com
+ * Email Notify Version: 0.2
+ * Author: Yossi Moalem
+ * Email :  moalem.yossi@gmail.com
  * 
  *
  * This library is free software; you can redistribute it and/or
@@ -22,7 +22,10 @@
 #ifndef EMAIL_NOTIFYER
 #define EMAIL_NOTIFYER
 
-class emailAccount;
+#include <error.h>
+#include <string> 
+
+class EmailAccount;
 
 
 enum AccountType
@@ -36,11 +39,11 @@ enum AccountType
   AT_LAST
 };
 
-class emailNotifiableIntf
+class EmailNotifiableIntf
 {
     public:
     virtual void onAccountUpdated (int newMessages) = 0;
-    virtual void onUpdateError (int status ) = 0;
+    virtual void onUpdateError (EmailError status ) = 0;
 };
 
 struct AccountSettings
@@ -54,14 +57,14 @@ struct AccountSettings
    unsigned int   updateInterval;
 };
 
-typedef emailAccount* accountHndl;
+typedef EmailAccount* accountHndl;
 
-class emailNotifier 
+class EmailNotifier 
 {
    public:
-   accountHndl registerAccount ( AccountSettings accountSettings, emailNotifiableIntf* handler );
+   accountHndl registerAccount ( const AccountSettings & accountSettings, EmailNotifiableIntf* handler ) const;
 
    private:
-   emailAccount*  createAccount (AccountSettings& settings, emailNotifiableIntf* i_handler);
+   EmailAccount*  createAccount (const AccountSettings & settings, EmailNotifiableIntf* i_handler) const;
 };
 #endif

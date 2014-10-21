@@ -1,7 +1,7 @@
 /*
- * Email Notify Version: 0.1
- * Author: Yossi Mualem
- * Email :  ymgetm@gmail.com
+ * Email Notify Version: 0.2
+ * Author: Yossi Moalem
+ * Email :  moalem.yossi@gmail.com
  * 
  *
  * This library is free software; you can redistribute it and/or
@@ -28,38 +28,46 @@
 #include "emailNotifier.h"
 
 class Socket;
-using namespace std;
 
 void* startChechingAccount (void* account);
 
-class emailAccount
+class EmailAccount
 {
 friend void* startChechingAccount(void*);
-   protected:
-      string       m_server_address;
-      unsigned short m_port;
-      string       m_uname;
-      string       m_pass;
-      bool         m_ssl;
-      bool         m_connected;
-      int         m_updateInterval;
-      emailNotifiableIntf* m_handler;
-      Socket*      m_socket;
-
-
-      EmailError  connect();
-      virtual EmailError  authenticate() = 0;
-      virtual EmailError  getNumOfNewMsgs(int* r_numOfNewMsgs) = 0;
-      virtual void        logout() = 0;
-      virtual EmailError check_response (const std::string& response, EmailError in_error_msg) const = 0;
-
    public:
-      emailAccount (const char* in_server_address, int in_port, const char* in_uname,
-            const char* in_pass, bool in_ssl, int updateInterval, emailNotifiableIntf* i_handler); 
-      virtual ~emailAccount() = 0;
+      EmailAccount (const std::string& i_serverAddress, 
+                    int port, 
+                    const std::string& i_uname,
+                    const std::string& i_password, 
+                    bool ssl, 
+                    int updateInterval, 
+                    EmailNotifiableIntf* i_handler); 
+      virtual ~EmailAccount() = 0;
       virtual void checkAccount();
-   void accountUpdated(int newMsgs);
 
+   protected:
+      std::string       m_server_address;
+      unsigned short    m_port;
+      std::string       m_uname;
+      std::string       m_pass;
+      bool              m_ssl;
+      bool              m_connected;
+      int               m_updateInterval;
+      EmailNotifiableIntf* m_handler;
+      Socket*           m_socket;
+
+   protected:
+      EmailError  connectToServer();
+      EmailError  connectToAccount();
+      virtual EmailError check_response (const std::string& response, EmailError i_error_msg) const;
+      virtual EmailError  authenticate() = 0;
+      virtual EmailError  getNumOfNewMsgs(int& r_numOfNewMsgs) = 0;
+      virtual void        logout() = 0;
+      virtual const char* okResponse() const = 0;
+      virtual const char* errResponse() const = 0;
+
+  private:
+    void disconnect ();
 };
 
 #endif

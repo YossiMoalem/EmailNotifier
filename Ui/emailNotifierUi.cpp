@@ -34,7 +34,7 @@
 
 static const char* checkingStatus = "Checking";
 
-emailNotifierUi::emailNotifierUi() : QObject (), m_widget(new QWidget), m_ntf(new emailNotifier)
+emailNotifierUi::emailNotifierUi() : QObject (), m_widget(new QWidget), m_ntf(new EmailNotifier)
 {
    m_accountString = new QString(checkingStatus);
    m_accountStatus = new QTextEdit(m_widget);
@@ -53,7 +53,7 @@ emailNotifierUi::emailNotifierUi() : QObject (), m_widget(new QWidget), m_ntf(ne
           this, SLOT(accountUpdated(int)));
 }
 
-void emailNotifierUi::onUpdateError(int newStatus)
+void emailNotifierUi::onUpdateError(EmailError newStatus)
 {
   //m_curStatus = newStatus; 
   emit (sigAccountUpdated (newStatus));
@@ -109,6 +109,7 @@ void emailNotifierUi::registerAccount()
     GeneralSettings generalSettings;
     //TODO: retval
     generalSettings_load (&generalSettings);
+
      accountSettings.updateInterval = generalSettings.updateIntervalMin * 60 + generalSettings.updateIntervalSec;
      m_ntf->registerAccount(accountSettings, this);
    }

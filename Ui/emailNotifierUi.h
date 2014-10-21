@@ -31,7 +31,7 @@ class QTextEdit;
 class configUi;
 class QWidget;
 
-class emailNotifierUi : public QObject, public emailNotifiableIntf
+class emailNotifierUi : public QObject, public EmailNotifiableIntf
 {
    Q_OBJECT
 
@@ -40,7 +40,7 @@ class emailNotifierUi : public QObject, public emailNotifiableIntf
       QWidget* widget();
       const char* statusStr () const;
       void onAccountUpdated (int newMsgs);
-    void onUpdateError (int status);
+    void onUpdateError (EmailError status);
 
       public slots:
          void showConfig();
@@ -50,12 +50,7 @@ class emailNotifierUi : public QObject, public emailNotifiableIntf
       QPushButton*   m_config;
       QTextEdit*     m_accountStatus;
       QWidget*       m_widget;
-      emailNotifier* m_ntf;
-
-    //  int           m_curNumOfMssgs;
-    //  int           m_curStatus;
-
-
+      EmailNotifier* m_ntf;
 
    private slots:
       void accountUpdated (int newMsgs);

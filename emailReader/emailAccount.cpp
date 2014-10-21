@@ -1,7 +1,7 @@
 /*
- * Email Notify Version: 0.1
- * Author: Yossi Mualem
- * Email :  ymgetm@gmail.com
+ * Email Notify Version: 0.2
+ * Author: Yossi Moalem
+ * Email :  moalem.yossi@gmail.com
  * 
  *
  * This library is free software; you can redistribute it and/or
@@ -28,8 +28,8 @@ void* startChechingAccount (void* account)
 {
    for (;;)
    {
-     ((emailAccount*)account)->checkAccount();
-     sleep(((emailAccount*)account)->m_updateInterval);
+     ((EmailAccount*)account)->checkAccount();
+     sleep(((EmailAccount*)account)->m_updateInterval);
    }
    return NULL;
 }
@@ -38,31 +38,33 @@ void* startChechingAccount (void* account)
 /* Some values from RFC1939 (Pop3)*/
 #define ARG_MAX_LEN 40
 #define RESPONSE_MAX_LEM 512
-emailAccount::emailAccount (const char* in_server_address, int in_port, const char* in_uname,
-      const char* in_pass, bool in_ssl, int updateInterval, emailNotifiableIntf* i_handler ) 
-: m_port (in_port), m_ssl(in_ssl), m_connected(false), m_updateInterval (updateInterval), m_handler(i_handler)
-
+EmailAccount::EmailAccount (const std::string& i_serverAddress, 
+                            int port, 
+                            const std::string&  i_uname,
+                            const std::string& i_pass, 
+                            bool ssl, 
+                            int updateInterval, 
+                            EmailNotifiableIntf* i_handler ) 
+    : m_port (port), 
+    m_ssl(ssl), 
+    m_server_address (i_serverAddress),
+    m_pass( i_pass),
+    m_connected(false), 
+    m_updateInterval (updateInterval), 
+    m_handler(i_handler)
 {
-   if (in_server_address)
-      m_server_address = in_server_address;
+    m_uname = i_uname;
+    m_uname.erase(m_uname.find_last_not_of(" \n\r\t")+1);
 
-   if (in_uname)
-   {
-      m_uname = in_uname;
-     m_uname.erase(m_uname.find_last_not_of(" \n\r\t")+1);
-   }
-
-   if (in_pass)
-      m_pass = in_pass;
    m_socket = new Socket(m_server_address.c_str(), m_port, m_ssl);
 }
 
-emailAccount::~emailAccount()
+EmailAccount::~EmailAccount()
 {
    delete m_socket;
 }
 
-EmailError emailAccount::connect ()
+EmailError EmailAccount::connectToServer ()
 {
    EmailError status = Email_no_error;
    ACE_DEBUG((LM_INFO, "EmailAccount:Connecting to server (%s:%d)\n", m_server_address.c_str(), m_port));
@@ -72,9 +74,7 @@ EmailError emailAccount::connect ()
    {
       ACE_DEBUG((LM_ERROR, "EmailAccount:Cannot connect Socket\n"));
       status = Email_connection_failed;
-   }
-   if (status == Email_no_error )
-   { 
+   } else { 
       if (m_socket->receive (answer) != Email_no_error)
          status = Email_connection_failed;
       else
@@ -83,15 +83,9 @@ EmailError emailAccount::connect ()
    return status;
 }
 
-void emailAccount::checkAccount() 
+EmailError EmailAccount::connectToAccount()
 {
-   ACE_DEBUG((LM_INFO, "EmailAccount: Checking Account\n"));
-   EmailError  status      = Email_no_error;
-
-   int         new_msgs    = -1;
-   if (m_connected == false) //TODO: use state of socket instead of this member
-   {
-      status = connect();
+      EmailError status = connectToServer();
       if (status != Email_no_error)
       {
          ACE_DEBUG((LM_ERROR, "EmailAccount: Error Connecting to server\n"));
@@ -101,40 +95,57 @@ void emailAccount::checkAccount()
          {
             ACE_DEBUG((LM_WARNING, "EmailAccount: Error authenticating\n"));
          } else {
-            status = getNumOfNewMsgs(&new_msgs);
-            if (status == Email_no_error)
-               m_connected = true;
+              m_connected = true;
          }
       }
+      return status;
+}
+void EmailAccount::checkAccount() 
+{
+   ACE_DEBUG((LM_INFO, "EmailAccount: Checking Account\n"));
+   EmailError  status      = Email_no_error;
+   int         newMsgs    = -1;
+
+   if (m_connected == false) //TODO: use state of socket instead of this member
+   {
+       status = connectToAccount();
+        if (status == Email_no_error)
+        {
+            status = getNumOfNewMsgs(newMsgs);
+        }
    } else { /* Already connected */
       ACE_DEBUG((LM_INFO, "EmailAccount: Attempting to use existing account\n"));
-      status = getNumOfNewMsgs(&new_msgs);
+      status = getNumOfNewMsgs(newMsgs);
       if (status != Email_no_error)
       {
          ACE_DEBUG((LM_INFO, "EmailAccount:Existing connection may have dropped. Attempting to re-connect\n"));
-         logout();
-         m_socket->close();
-         m_connected = false;
+         disconnect();
          checkAccount();
       }
    }
-#if 0 // TODO: This should be under config/member should_Disconnect
-   logout();
-   m_socket->close();
-   m_connected = false;
-#endif
    if (status == Email_no_error)
    {
-      ACE_DEBUG((LM_INFO, "EmailAccount:Checking account finished successfully. Emiting %d\n", new_msgs));
-      accountUpdated(new_msgs);
+      ACE_DEBUG((LM_INFO, "EmailAccount:Checking account finished successfully. Emiting %d\n", newMsgs));
+        m_handler->onAccountUpdated(newMsgs);
    } else {
       ACE_DEBUG((LM_WARNING, "EmailAccount:Checking account finished with error. Emiting %d\n",status));
-      accountUpdated(status); //TODO:
+        m_handler->onUpdateError(status);
    }
 }
 
-void emailAccount::accountUpdated(int newMsgs)
+void EmailAccount::disconnect()
 {
-   ACE_DEBUG((LM_INFO, "EnailAccount:Account status has changed. Emiting new status(%d)\n", newMsgs));
-    m_handler->onAccountUpdated(newMsgs);
+    logout();
+    m_socket->close();
+    m_connected = false;
+}
+EmailError EmailAccount::check_response(const std::string& response, EmailError i_err_msg) const
+{
+   EmailError status = Email_no_error;
+   if (response.find( errResponse() ) != std::string::npos)
+      status = i_err_msg;
+   else if (response.find( okResponse() ) == std::string::npos)
+      status = Email_connection_invalid_response;
+
+   return status;
 }

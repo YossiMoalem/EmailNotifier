@@ -1,7 +1,7 @@
 /*
- * Email Notify Version: 0.1
- * Author: Yossi Mualem
- * Email :  ymgetm@gmail.com
+ * Email Notify Version: 0.2
+ * Author: Yossi Moalem
+ * Email :  moalem.yossi@gmail.com
  * 
  *
  * This library is free software; you can redistribute it and/or
@@ -32,11 +32,12 @@ class Socket
 {
 
  public:
-   Socket (const char* in_address, unsigned short portNum, bool ssl); 
+   Socket (const std::string& i_address, unsigned short portNum, bool ssl); 
    ~Socket();
 
    EmailError  connect           ();
-   EmailError  send              (const char* in_msg) const ;
+   EmailError  send              (const std::string& i_msg) const ;
+   EmailError  send              (const char* i_msg) const ;
    EmailError  receive           (std::string& o_msg) const ;
    EmailError  close             ();
 
