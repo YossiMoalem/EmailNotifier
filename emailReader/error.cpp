@@ -41,37 +41,18 @@ const char* EmailErrorToStr (EmailError error)
       case Email_general_connection_error:
          str = (char*)"General connection Error";
          break;
-      case Email_missing_config_file:
-         str = (char*)"Please add an account";
-         break;
-      case Email_invalid_config_file:
-         str = (char*)"Configuration file is invalid. Please update settings";
-         break;
-      case Email_cannot_write_config_file:
-         str = (char*)"Cannot write the configuration file";
-      case Email_cannot_init_ssl:
-         str = (char*)"Cannot initialize SSL connection";
+      case Email_invalid_account_detils:
+         str = (char*)"Account detailes are invalid";
          break;
       case Email_time_out:
         str=(char*)"Opperation timed out";
         break;
-      case Email_invalid_input:
-         str = (char*)"General Error (invalid input)";
-         break;
-      case Email_cannor_resolve_host:
-         str = (char*)"Cannot resolve host";
-         break;
       case Email_connection_closed :
          str = (char*)"Connection to host closed unexpectedly";
          break;
       case Email_recive_error:
          str = (char*)"General Error (receive error)";
          break;
-      case Email_no_connection:
-         str = (char*)"General ERror (no connection)";
-         break;
-
-
       default:
          str = (char*)"Unknown Error (AKA I was too lazy to specify the error)";
          break;

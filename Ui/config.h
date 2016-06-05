@@ -38,15 +38,23 @@ struct GeneralSettings
    unsigned int         updateIntervalSec;
    bool                 playNotification;
 };
+enum ConfigurationError
+{
+   E_ok                             = 0,
+   E_missing_config_file           = -101,
+   E_invalid_config_file           = -102,
+   E_cannot_write_config_file      = -103
+};
+
 static const char * const AccountTypeName[AT_LAST] = { "ERR", EMAIL_TYPE_POP3, EMAIL_TYPE_IMAP, EMAIL_TYPE_HOTMAIL, EMAIL_TYPE_GMAIL, EMAIL_TYPE_YAHOO};
 
 class AccountSettings;
 
-EmailError accountSettings_save(const AccountSettings* settings);
-EmailError accountSettings_load(AccountSettings* r_settings);
+ConfigurationError accountSettings_save(const AccountSettings* settings);
+ConfigurationError accountSettings_load(AccountSettings* r_settings);
 
-EmailError generalSettings_save (const GeneralSettings* settings);
-EmailError generalSettings_load (GeneralSettings* r_settings);
+ConfigurationError  generalSettings_save (const GeneralSettings* settings);
+ConfigurationError generalSettings_load (GeneralSettings* r_settings);
 AccountType accountNameToType (const std::string& i_name);
 
 #endif

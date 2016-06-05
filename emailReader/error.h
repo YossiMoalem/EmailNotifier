@@ -37,21 +37,11 @@ enum EmailError
    Email_connection_invalid_response   = -102,
    Email_authentication_error          = -103,
    Email_general_connection_error      = -104,
-   Email_cannot_init_ssl               = -105,
-   Email_cannor_resolve_host           = -106,
-   Email_connection_closed             = -107,
-   Email_recive_error                  = -108,
-   Email_no_connection                 = -109,
-   Email_time_out          = -110,
+   Email_connection_closed             = -105,
+   Email_recive_error                  = -106,
+   Email_time_out                      = -107,
+   Email_invalid_account_detils        = -108
    /* Config Errors */
-   Email_missing_config_file           = -201,
-   Email_invalid_config_file           = -202,
-   Email_cannot_write_config_file      = -203,
-
-   /* General Errors */
-   Email_invalid_input                 = -301,
-   Email_last_err                      = -302
-
 };
 
 const char* EmailErrorToStr (EmailError error);

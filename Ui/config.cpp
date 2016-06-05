@@ -53,7 +53,7 @@
 
 static void _read_elem_val (QDomElement &root, const char* elem_name, std::string &r_value);
 static void _add_elem (QDomDocument &doc, QDomElement &root, const char* elem_name, const char* elem_val);
-static EmailError _load_xml (QDomDocument &dox);
+static ConfigurationError _load_xml (QDomDocument &dox);
 
 const char* get_settings_config_name ()
 {
@@ -74,7 +74,7 @@ const char* get_settings_config_name ()
 /*********************************************************\
  *          Account Settings
  \*********************************************************/
-EmailError accountSettings_save(const AccountSettings* settings)
+ConfigurationError accountSettings_save(const AccountSettings* settings)
 {
    /* init */
 
@@ -124,25 +124,25 @@ EmailError accountSettings_save(const AccountSettings* settings)
    QString xml = doc.toString();
    QFile file(get_settings_config_name());
    if(!file.open(QIODevice::WriteOnly ))
-      return Email_cannot_write_config_file ;
+      return E_cannot_write_config_file ;
 
    QTextStream ts( &file );
    ts << doc.toString();
 
 
    file.close();
-   return Email_no_error;
+   return E_ok;
 }
 
-EmailError accountSettings_load(AccountSettings* r_settings)
+ConfigurationError accountSettings_load(AccountSettings* r_settings)
 {
-   EmailError status = Email_no_error;
+   ConfigurationError status = E_ok;
 
    QDomDocument doc(DOC_NAME);
    status = _load_xml (doc);
 
    /* Read Settings */
-   if (status == Email_no_error)
+   if (status == E_ok)
    {
       QDomElement root = doc.firstChildElement(DOC_NAME);
       QDomElement accountsRoot = root.firstChildElement(ACCOUNTS_ROOT);
@@ -150,7 +150,7 @@ EmailError accountSettings_load(AccountSettings* r_settings)
 
       if (account.isNull())
       {
-         status = Email_invalid_config_file;
+         status = E_invalid_config_file;
       } else {
          std::string portStr;
          std::string sslStr;
@@ -176,7 +176,7 @@ EmailError accountSettings_load(AccountSettings* r_settings)
 /*********************************************************\
  *          Applications Settings
  \*********************************************************/
-EmailError generalSettings_save (const GeneralSettings* settings)
+ConfigurationError generalSettings_save (const GeneralSettings* settings)
 {
    /* init */
    const char* playSound = (settings->playNotification) ? "TRUE" : "FALSE";
@@ -207,30 +207,30 @@ EmailError generalSettings_save (const GeneralSettings* settings)
    QString xml = doc.toString();
    QFile file(get_settings_config_name());
    if(!file.open(QIODevice::WriteOnly ))
-      return Email_cannot_write_config_file ;
+      return E_cannot_write_config_file ;
 
    QTextStream ts( &file );
    ts << doc.toString();
 
    file.close();
-   return Email_no_error;
+   return E_ok;
 }
-EmailError generalSettings_load (GeneralSettings* r_settings)
+ConfigurationError generalSettings_load (GeneralSettings* r_settings)
 {
-   EmailError status = Email_no_error;
+   ConfigurationError status = E_ok;
 
    QDomDocument doc(DOC_NAME);
    status = _load_xml (doc);
 
    /* Read Settings */
-   if (status == Email_no_error)
+   if (status == E_ok)
    {
       QDomElement root = doc.firstChildElement(DOC_NAME);
       QDomElement generalSettingsElem = root.firstChildElement(GENERAL_ELEM);
 
       if (generalSettingsElem.isNull())
       {
-         status = Email_invalid_config_file;
+         status = E_invalid_config_file;
       } else {
          std::string playSoundStr;
          std::string updateStr;
@@ -270,18 +270,18 @@ static void _read_elem_val (QDomElement &root, const char* elem_name, std::strin
    r_value = elem_val.toUtf8().constData();
 }
 
-static EmailError _load_xml (QDomDocument &doc)
+static ConfigurationError _load_xml (QDomDocument &doc)
 {
 
-   EmailError status = Email_no_error;
+   ConfigurationError status = E_ok;
    QFile file(get_settings_config_name());
    if (!file.open(QIODevice::ReadOnly))
-      status = Email_missing_config_file;
-   if (status == Email_no_error)
+      status = E_missing_config_file;
+   if (status == E_ok)
    {
       if ( !doc.setContent (&file))
       {
-         status = Email_invalid_config_file; 
+         status = E_invalid_config_file; 
       }
       file.close();
    }

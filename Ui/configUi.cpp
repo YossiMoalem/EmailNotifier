@@ -253,13 +253,13 @@ void accountTab::save ()
       settings.port  = 0;
       settings.ssl   = 0;
    }
-   if (accountSettings_save(&settings) != Email_no_error)
+   if (accountSettings_save(&settings) != E_ok)
       qDebug ("configUi:ERROR: Error when trying to write config file");
 }
 void accountTab::load ()
 {
    AccountSettings settings;
-   if ( accountSettings_load(&settings) == Email_no_error)
+   if ( accountSettings_load(&settings) == E_ok)
    {
       m_uname->setText(QString(settings.login.c_str()));
       m_pass->setText(QString(settings.pass.c_str()));
@@ -337,13 +337,13 @@ void generalTab::save()
    settings.updateIntervalMin = (unsigned int)m_intervalMin->value();
    settings.updateIntervalSec = (unsigned int)m_intervalSec->value();
    settings.playNotification = (m_playSound->checkState() > 0);
-   if (generalSettings_save (&settings) != Email_no_error)
+   if (generalSettings_save (&settings) != E_ok)
       qDebug ("configUi:ERROR: Error when trying to write config file");
 }
 void generalTab::load()
 {
    GeneralSettings settings;
-   if (generalSettings_load(&settings) == Email_no_error)
+   if (generalSettings_load(&settings) == E_ok)
    {
       m_intervalMin->setValue(settings.updateIntervalMin);
       m_intervalSec->setValue(settings.updateIntervalSec);

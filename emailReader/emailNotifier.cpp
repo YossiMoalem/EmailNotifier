@@ -34,10 +34,10 @@ accountHndl EmailNotifier::registerAccount( const AccountSettings &  accountSett
    if (newAccount == NULL)
    {
        ACE_DEBUG((LM_ERROR, "EmailNotify:Error creating acount \n"));
-       handler->onUpdateError(Email_invalid_config_file); //TODO: replace error
+       handler->onUpdateError(Email_invalid_account_detils ); //TODO: replace error
    } else { 
-    pthread_t workerTreag;
-    pthread_create(&workerTreag, NULL, startChechingAccount, newAccount);
+    pthread_t workerTread;
+    pthread_create(&workerTread, NULL, startChechingAccount, newAccount);
    }
   return newAccount;
 }

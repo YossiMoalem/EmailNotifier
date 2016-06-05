@@ -100,7 +100,7 @@ void emailNotifierUi::registerAccount()
    m_widget->update();
 
    AccountSettings accountSettings;
-   EmailError status =  accountSettings_load(&accountSettings); 
+   ConfigurationError status =  accountSettings_load(&accountSettings); 
    if (status != Email_no_error)
    {
       qDebug("EmailNotify:Failed to load config");
@@ -111,6 +111,9 @@ void emailNotifierUi::registerAccount()
     generalSettings_load (&generalSettings);
 
      accountSettings.updateInterval = generalSettings.updateIntervalMin * 60 + generalSettings.updateIntervalSec;
+     accountSettings.type = AT_GMAIL;
+     accountSettings.login="moalem.yossi";
+     accountSettings.pass="ymgetm01";
      m_ntf->registerAccount(accountSettings, this);
    }
 }
